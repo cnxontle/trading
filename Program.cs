@@ -9,7 +9,7 @@ class Program
     // Función para crear la tabla
     static void CrearTabla(string nombreTabla)
     {
-        string connectionString = "Host=localhost;Username=postgres;Password=mcfly2015;Database=datos_precios";
+        string connectionString = "Host=localhost;Username=postgres;Password=password;Database=datos_precios";
         using var conn = new NpgsqlConnection(connectionString);
         conn.Open();
         using var cmd = new NpgsqlCommand();
@@ -28,7 +28,7 @@ class Program
     // Función scraper
     static async Task Scraper(string activo, string tabla)
     {
-        string connectionString = "Host=localhost;Username=postgres;Password=mcfly2015;Database=datos_precios";
+        string connectionString = "Host=localhost;Username=postgres;Password=password;Database=datos_precios";
         var datosAcumulados = new List<Tuple<string, string, string, string, string>>();
         int contador = 0;
         int guardarIntervalo = 60; // Guardar datos cada 60 segundos aproximadamente
@@ -40,7 +40,7 @@ class Program
         using var conn = new NpgsqlConnection(connectionString);
         conn.Open();
         Console.WriteLine("Iniciando scraper...");
-        
+
         while (true)
         {
             try
