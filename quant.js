@@ -1,12 +1,12 @@
 function obtenerValor() {
     const monedas = {
-        "ADA-USD": document.querySelector('p[data-testid="watchlist_value_ADA-USD"]'),
-        "LTC-USD": document.querySelector('p[data-testid="watchlist_value_LTC-USD"]'),
-        "UNI-USD": document.querySelector('p[data-testid="watchlist_value_UNI-USD"]'),
-        "ETH-USD": document.querySelector('p[data-testid="watchlist_value_ETH-USD"]'),
-        "LINK-USD": document.querySelector('p[data-testid="watchlist_value_LINK-USD"]'),
-        "SOL-USD": document.querySelector('p[data-testid="watchlist_value_SOL-USD"]'),
-        "BTC-USD": document.querySelector('p[data-testid="watchlist_value_BTC-USD"]')
+        "ADA_USD": document.querySelector('p[data-testid="watchlist_value_ADA-USD"]'),
+        "LTC_USD": document.querySelector('p[data-testid="watchlist_value_LTC-USD"]'),
+        "UNI_USD": document.querySelector('p[data-testid="watchlist_value_UNI-USD"]'),
+        "ETH_USD": document.querySelector('p[data-testid="watchlist_value_ETH-USD"]'),
+        "LINK_USD": document.querySelector('p[data-testid="watchlist_value_LINK-USD"]'),
+        "SOL_USD": document.querySelector('p[data-testid="watchlist_value_SOL-USD"]'),
+        "BTC_USD": document.querySelector('p[data-testid="watchlist_value_BTC-USD"]')
     };
 
     let tiempoActual = new Date().toISOString();
