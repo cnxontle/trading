@@ -23,7 +23,7 @@ app.post('/guardar-valores', async (req, res) => {
     const { tiempo, valores } = req.body;
 
      
-    // Descomponer el objeto de valores 
+    // Descomponer el objeto de valores
     const { ADA_USD, LTC_USD, UNI_USD, ETH_USD, LINK_USD, SOL_USD, BTC_USD } = JSON.parse(valores);
     const ada_usd = parseFloat(ADA_USD.replace('$', '').replace(',', ''));
     const ltc_usd = parseFloat(LTC_USD.replace('$', '').replace(',', ''));
@@ -40,7 +40,7 @@ app.post('/guardar-valores', async (req, res) => {
 
     try {
         const query = `
-            INSERT INTO valores_cripto (tiempo, ADA_USD, LTC_USD, UNI_USD, ETH_USD, LINK_USD, SOL_USD, BTC_USD)
+            INSERT INTO valores (tiempo, ADA_USD, LTC_USD, UNI_USD, ETH_USD, LINK_USD, SOL_USD, BTC_USD)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *;
         `;
