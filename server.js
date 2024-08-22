@@ -6,8 +6,32 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-app.use(cors()); 
+
+// Middleware de CORS
+app.use(cors({
+    origin: '*', // O especifica tu origen
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type'],
+    preflightContinue: true,
+}));
+
+// Middleware para parsear JSON
 app.use(bodyParser.json());
+
+// Middleware para agregar la cabecera Access-Control-Allow-Private-Network
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+    next();
+});
+
+// Manejo de solicitudes OPTIONS para preflight requests
+app.options('*', (req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+    res.sendStatus(204); // Sin contenido, pero con las cabeceras correctas
+});
 
 // Configura la conexión a PostgreSQL
 const pool = new Pool({
@@ -29,7 +53,7 @@ app.post('/guardar-valores', async (req, res) => {
         keys.forEach(key => {
             parsedValues[key.toLowerCase()] = parseFloat(parsedValores[key].replace(',', '').replace('X', '').replace("'", ".").replace('ύ', '').replace('Ϊ', ''));
         });
-        console.log("Valores convertidos:", parsedValores);
+        console.log("Valores de nasdaq_qcom:", parsedValores);
 
         // Construir consulta dinámica
         const columns = keys.join(', ');
@@ -47,7 +71,7 @@ app.post('/guardar-valores', async (req, res) => {
     }
 });
 
-// Endpoint para obtener los valores
+// Iniciar el servidor
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`);
 });
