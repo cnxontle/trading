@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000;
 
 // Middleware de CORS
 app.use(cors({
-    origin: '*', // O especifica tu origen
+    origin: '*', // Permitir todas las solicitudes
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type'],
     preflightContinue: true,
