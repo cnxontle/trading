@@ -30,7 +30,7 @@ app.options('*', (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Allow-Private-Network', 'true');
-    res.sendStatus(204); // Sin contenido, pero con las cabeceras correctas
+    res.sendStatus(204);
 });
 
 // Configura la conexión a PostgreSQL
@@ -51,9 +51,9 @@ app.post('/guardar-valores', async (req, res) => {
         const parsedValores = JSON.parse(valores);
         const keys = Object.keys(parsedValores);
         keys.forEach(key => {
-            parsedValues[key.toLowerCase()] = parseFloat(parsedValores[key].replace(',', '').replace('X', '').replace("'", ".").replace('ύ', '').replace('Ϊ', ''));
+            const cleanedValue = parsedValores[key].replace(/[^0-9.,]/g, '');
+            parsedValues[key.toLowerCase()] = parseFloat(cleanedValue.replace(',', '.'));
         });
-        console.log("Valores de nasdaq_qcom:", parsedValores);
 
         // Construir consulta dinámica
         const columns = keys.join(', ');
