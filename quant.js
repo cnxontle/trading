@@ -142,7 +142,9 @@ function obtenerValor() {
 
     };
 
-    let tiempoActual = new Date().toISOString();
+    let tiempoActual = new Date();
+    tiempoActual.setHours(tiempoActual.getHours() - 6);
+    let tiempoGMTMinus6 = tiempoActual.toISOString();
     let valores = {};
 
     for (let [ticker, elemento] of Object.entries(tickers)) {
@@ -163,7 +165,7 @@ function obtenerValor() {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            tiempo: tiempoActual,
+            tiempo: tiempoGMTMinus6,
             valores: valoresJson
         })
     })
