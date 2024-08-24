@@ -55,6 +55,9 @@ app.post('/guardar-valores', async (req, res) => {
             parsedValues[key.toLowerCase()] = parseFloat(cleanedValue.replace(',', '.'));
         });
 
+        // imprimir en consola la marca de tiempo 
+        console.log(`Marca de tiempo: ${tiempo}`);
+
         // Construir consulta dinámica
         const columns = keys.join(', ');
         const placeholders = keys.map((_, index) => `$${index + 2}`).join(', ');
