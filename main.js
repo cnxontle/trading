@@ -5,6 +5,7 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1024,
         height: 768,
+        show: false,
         webPreferences: {
             nodeIntegration: false, 
             contextIsolation: false,  

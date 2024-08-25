@@ -51,8 +51,8 @@ app.post('/guardar-valores', async (req, res) => {
         const parsedValores = JSON.parse(valores);
         const keys = Object.keys(parsedValores);
         keys.forEach(key => {
-            const cleanedValue = parsedValores[key].replace(/[^0-9.,]/g, '');
-            parsedValues[key.toLowerCase()] = parseFloat(cleanedValue.replace(',', '.'));
+            const cleanedValue = parsedValores[key].replace(/[^0-9.]/g, '');
+            parsedValues[key.toLowerCase()] = parseFloat(cleanedValue);
         });
 
         // imprimir en consola la marca de tiempo 
