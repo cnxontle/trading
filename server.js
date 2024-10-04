@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-
+ 
 // Middleware de CORS
 app.use(cors({
     origin: '*', // Permitir todas las solicitudes
@@ -42,32 +42,52 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
-// Endpoint para recibir y guardar los datos
+let ultimaSuma = 0;
+let contadorRepeticiones = 1;
+
 app.post('/guardar-valores', async (req, res) => {
     const { tiempo, valores } = req.body;
-    let parsedValues = {};
+    let sumaActual = 0;
+    
     try {
-        // Parsear y convertir valores
         const parsedValores = JSON.parse(valores);
         const keys = Object.keys(parsedValores);
+        const parsedValues = {};
+
+        // Parsear y sumar los valores
         keys.forEach(key => {
-            const cleanedValue = parsedValores[key].replace(/[^0-9.]/g, '');
-            parsedValues[key.toLowerCase()] = parseFloat(cleanedValue);
+            const cleanedValue = parsedValores[key].replace(/[^0-9.-]/g, '');
+            const parsedFloat = parseFloat(cleanedValue);
+            parsedValues[key.toLowerCase()] = !isNaN(parsedFloat) ? parsedFloat : 0;
+            sumaActual += parsedValues[key.toLowerCase()];
         });
+        console.log(`tiempo: ${tiempo}, Suma: ${sumaActual}`);
 
-        // imprimir en consola la marca de tiempo 
-        console.log(`Marca de tiempo: ${tiempo}`);
+        if (sumaActual === ultimaSuma) {
+            contadorRepeticiones++;
+            if (contadorRepeticiones > 5) {
+                console.log(`Repeticiones excedidas: ${contadorRepeticiones}`);
+                return res.status(500).end();
+            }
+        } else {
+            contadorRepeticiones = 1; // Reiniciar si la suma es diferente
+        }
 
-        // Construir consulta dinámica
+        // Si las repeticiones son 5 o la suma 0, convertir los valores a null para indicar un salto de tiempo
+        if (contadorRepeticiones === 5 || sumaActual ===0) {
+            keys.forEach(key => {
+                parsedValues[key.toLowerCase()] = null;
+            });
+        }
+
+        // Construir y ejecutar consulta dinámica
         const columns = keys.join(', ');
         const placeholders = keys.map((_, index) => `$${index + 2}`).join(', ');
-        const query = `
-            INSERT INTO valores (tiempo, ${columns})
-            VALUES ($1, ${placeholders})
-            RETURNING *;
-        `;
-        const result = await pool.query(query, [tiempo, ...keys.map(key => parsedValues[key.toLowerCase()])]);
-        res.status(200).json(result.rows[0]);
+        const query = `INSERT INTO valores (tiempo, ${columns}) VALUES ($1, ${placeholders}) RETURNING *;`;
+        await pool.query(query, [tiempo, ...keys.map(key => parsedValues[key.toLowerCase()])]);
+        ultimaSuma = sumaActual;
+        res.status(200).end();
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Error guardando los valores' });

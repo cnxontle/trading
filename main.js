@@ -1,6 +1,9 @@
+
+
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
+//Crear una ventana de navegador Electron 
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1024,
@@ -23,7 +26,10 @@ function createWindow() {
     });
 }
 
+
+
 app.whenReady().then(() => {
+
     createWindow();
 
     app.on('activate', () => {
