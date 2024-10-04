@@ -73,12 +73,12 @@ app.post('/guardar-valores', async (req, res) => {
             contadorRepeticiones = 1; // Reiniciar si la suma es diferente
         }
 
-        // Si las repeticiones son 5 o la suma 0, convertir los valores a null para indicar un salto de tiempo
-        if (contadorRepeticiones === 5 || sumaActual ===0) {
-            keys.forEach(key => {
+        // convertir los valores 0 a null
+        keys.forEach(key => {
+            if (parsedValues[key.toLowerCase()] === 0) {
                 parsedValues[key.toLowerCase()] = null;
-            });
-        }
+            }
+        });
 
         // Construir y ejecutar consulta dinámica
         const columns = keys.join(', ');

@@ -20,7 +20,7 @@ function createWindow() {
     mainWindow.loadURL('https://trading.quantfury.com/');
 
     // Inyectar código JavaScript en la página
-    mainWindow.webContents.on('dom-ready', () => {
+    mainWindow.webContents.once('dom-ready', () => {
         mainWindow.webContents.executeJavaScript(
             require('fs').readFileSync(path.join(__dirname, 'quant.js'), 'utf8'));
     });
