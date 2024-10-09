@@ -1,5 +1,8 @@
+let tickers = {};
+
 function obtenerValor() {
-    const tickers = {
+    // Seleccionar los elementos del DOM correspondientes a los tickers  
+    const nuevosTickers = {
         "AAVE_USD": document.querySelector('p[data-testid="watchlist_value_AAVE-USD"]'),
         "ADA_USD": document.querySelector('p[data-testid="watchlist_value_ADA-USD"]'),
         "APT_USDT": document.querySelector('p[data-testid="watchlist_value_APT/USDT"]'),
@@ -141,6 +144,25 @@ function obtenerValor() {
         "BMV_AC": document.querySelector('p[data-testid="watchlist_value_AC"]'),
 
     };
+
+    // Se Actualizan las referencias en tickers
+    Object.keys(tickers).forEach(ticker => {
+        if (!nuevosTickers[ticker]) {
+            delete tickers[ticker]; 
+        }
+    });
+
+    // Añadimos las nuevas referencias de tickers si los elementos existen
+    Object.entries(nuevosTickers).forEach(([ticker, elemento]) => {
+        if (elemento) {
+            tickers[ticker] = elemento;
+        }
+    });
+
+    // Si tikers es nulo empezar con nuevos tikers
+    if (Object.keys(tickers).length === 0) {
+        tickers = nuevosTickers;
+    }
 
     let tiempoActual = new Date();
     tiempoActual.setHours(tiempoActual.getHours() - 6);
