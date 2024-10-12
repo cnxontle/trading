@@ -1,5 +1,3 @@
-
-
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
@@ -11,9 +9,8 @@ function createWindow() {
         show: false,
         webPreferences: {
             nodeIntegration: false, 
-            contextIsolation: false,  
-            //preload: path.join(__dirname, 'preload.js')  
-        }
+            contextIsolation: true,  
+            }
     });
 
     // Cargar la página de quantfury
@@ -26,18 +23,12 @@ function createWindow() {
     });
 }
 
-
-
 app.whenReady().then(() => {
-
     createWindow();
-
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createWindow();
-          
         }
-
     });
 });
 

@@ -1,8 +1,6 @@
-let tickers = {};
-
 function obtenerValor() {
     // Seleccionar los elementos del DOM correspondientes a los tickers  
-    const nuevosTickers = {
+    const tickers = {
         "AAVE_USD": document.querySelector('p[data-testid="watchlist_value_AAVE-USD"]'),
         "ADA_USD": document.querySelector('p[data-testid="watchlist_value_ADA-USD"]'),
         "APT_USDT": document.querySelector('p[data-testid="watchlist_value_APT/USDT"]'),
@@ -64,7 +62,7 @@ function obtenerValor() {
         "COMMOD_SUGAR": document.querySelector('p[data-testid="watchlist_value_SBH5"]'),
         "COMMOD_COFFE": document.querySelector('p[data-testid="watchlist_value_KCZ4"]'),
         "COMMOD_HEATING_OIL": document.querySelector('p[data-testid="watchlist_value_HOX4"]'),
-        "COMMOD_CRUDE_OIL": document.querySelector('p[data-testid="watchlist_value_CLX4"]'),
+        "COMMOD_CRUDE_OIL": document.querySelector('p[data-testid="watchlist_value_CLZ4"]'),
         "COMMOD_BRENT_CRUDE": document.querySelector('p[data-testid="watchlist_value_BRNZ4"]'),
         "COMMOD_NATURAL_GAS": document.querySelector('p[data-testid="watchlist_value_NGX24"]'),
         "COMMOD_GASOLINE": document.querySelector('p[data-testid="watchlist_value_RBX4"]'),
@@ -72,7 +70,7 @@ function obtenerValor() {
         "COMMOD_COPPER": document.querySelector('p[data-testid="watchlist_value_HGZ4"]'),
         "COMMOD_GOLD": document.querySelector('p[data-testid="watchlist_value_GCZ4"]'),
         "COMMOD_PLATINUM": document.querySelector('p[data-testid="watchlist_value_PLF5"]'),
-        "INDEX_VIX": document.querySelector('p[data-testid="watchlist_value_VXV4"]'),
+        "INDEX_VIX": document.querySelector('p[data-testid="watchlist_value_VXX4"]'),
         "INDEX_RUSSELL_2000": document.querySelector('p[data-testid="watchlist_value_IWM"]'),
         "INDEX_NASDAQ_100": document.querySelector('p[data-testid="watchlist_value_NQZ4"]'),
         "INDEX_SP_500": document.querySelector('p[data-testid="watchlist_value_ESZ4"]'),
@@ -142,28 +140,8 @@ function obtenerValor() {
         "NASDAQ_MELI": document.querySelector('p[data-testid="watchlist_value_MELI.O"]'),
         "BMV_AGUA": document.querySelector('p[data-testid="watchlist_value_AGUA"]'),
         "BMV_AC": document.querySelector('p[data-testid="watchlist_value_AC"]'),
-
     };
-
-    // Se Actualizan las referencias en tickers
-    Object.keys(tickers).forEach(ticker => {
-        if (!nuevosTickers[ticker]) {
-            delete tickers[ticker]; 
-        }
-    });
-
-    // Añadimos las nuevas referencias de tickers si los elementos existen
-    Object.entries(nuevosTickers).forEach(([ticker, elemento]) => {
-        if (elemento) {
-            tickers[ticker] = elemento;
-        }
-    });
-
-    // Si tikers es nulo empezar con nuevos tikers
-    if (Object.keys(tickers).length === 0) {
-        tickers = nuevosTickers;
-    }
-
+   
     let tiempoActual = new Date();
     tiempoActual.setHours(tiempoActual.getHours() - 6);
     let tiempoGMTMinus6 = tiempoActual.toISOString();
@@ -191,8 +169,8 @@ function obtenerValor() {
             valores: valoresJson
         })
     })
-    .then(response => response.json())
-    .catch(error => console.error('Error:', error));
+    .then(response => {if (response.status !== 200) {}})
+    .catch(() => {});
 }
 
 let intervalo = setInterval(obtenerValor, 1000);
