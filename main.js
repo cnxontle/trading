@@ -29,12 +29,10 @@ async function ejecutarSQL(sql) {
     try {
         const results = await pool.query(sql);
         if (results && results.rows.length > 0) {
-            
             results.rows.forEach(row => {
-                console.log('Marca de tiempo:', row.tiempo); // Accediendo a la propiedad 'tiempo'
+                console.log('Marca de tiempo:', row.tiempo); 
             });
-            // Aquí puedes hacer algo con los resultados, por ejemplo:
-            // mainWindow.webContents.executeJavaScript(`alert(${JSON.stringify(results.rows)});`);
+            // acciones basadas en los resultados
         } else {
             console.log('No se encontraron filas en el resultado.');
         }
@@ -57,22 +55,17 @@ function createWindow() {
 
     // Cargar la página de quantfury
     mainWindow.loadURL('https://trading.quantfury.com/');
-
-    // Inyectar código JavaScript en la página
     mainWindow.webContents.once('dom-ready', () => {
         mainWindow.webContents.executeJavaScript(
-            require('fs').readFileSync(path.join(__dirname, 'quant.js'), 'utf8'));
+            require('fs').readFileSync(path.join(__dirname, 'quant.js'), 'utf8')); // Inyectar código JavaScript en la página
 
         // Llamar a la función principal de ejecución de SQL
         const ejecutarConsulta = async () => {
             const sql = await leerConsultaSQL();
             setInterval(() => {
                 ejecutarSQL(sql).then((results) => {
-                    // Aquí puedes hacer algo con los resultados en el contexto de Electron
                     if (results && results.rows.length > 0) {
                         // Acciones basadas en los resultados
-                        // Por ejemplo, si quieres enviar un mensaje al front-end:
-                        mainWindow.webContents.executeJavaScript(`alert(${JSON.stringify(results.rows)});`);
                     }
                 });
             }, 1000);  
