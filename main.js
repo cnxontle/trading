@@ -29,7 +29,10 @@ async function ejecutarSQL(sql) {
     try {
         const results = await pool.query(sql);
         if (results && results.rows.length > 0) {
-            console.log('Resultado de la ejecución:', results.rows);
+            
+            results.rows.forEach(row => {
+                console.log('Marca de tiempo:', row.tiempo); // Accediendo a la propiedad 'tiempo'
+            });
             // Aquí puedes hacer algo con los resultados, por ejemplo:
             // mainWindow.webContents.executeJavaScript(`alert(${JSON.stringify(results.rows)});`);
         } else {
