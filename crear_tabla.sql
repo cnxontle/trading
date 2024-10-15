@@ -161,34 +161,18 @@ CREATE TABLE valores (
 
 );
 
---seleccionar_2_filas_para_calculo.sql
+-- CREATE INDEX idx_tiempo ON valores (TIEMPO);
+CREATE INDEX idx_tiempo ON valores (TIEMPO);
 
-WITH ultima_fila AS (
-    SELECT tiempo 
-    FROM valores 
-    ORDER BY tiempo DESC 
-    LIMIT 1
-)
-(
-    -- Primera fila: Última insertada
-    SELECT * 
-    FROM valores 
-    ORDER BY tiempo DESC 
-    LIMIT 1
-)
-UNION ALL
-(
-    -- Segunda fila: Restar 3600 segundos y buscar la fila correspondiente
-    SELECT * 
-    FROM valores 
-    WHERE tiempo >= (
-        SELECT tiempo - INTERVAL '6 seconds'
-        FROM ultima_fila
-    )
-    AND tiempo < (
-        SELECT tiempo - INTERVAL '5 seconds'
-        FROM ultima_fila
-    )
-    ORDER BY tiempo DESC 
-    LIMIT 1
-);
+
+-- Path: notificar_insercion.sql
+CREATE OR REPLACE FUNCTION notificar_insercion() RETURNS TRIGGER AS $$
+BEGIN
+    PERFORM pg_notify('nueva_fila', row_to_json(NEW)::text);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_insercion
+AFTER INSERT ON valores
+FOR EACH ROW EXECUTE FUNCTION notificar_insercion();
