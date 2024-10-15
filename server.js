@@ -90,7 +90,7 @@ app.post('/guardar-valores', async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Error guardando los valores' });
+        res.status(500).end();
     }
 });
 
