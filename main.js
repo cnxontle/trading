@@ -2,7 +2,7 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 const { Pool } = require('pg');
-require('dotenv').config();  // Cargar variables de entorno
+require('dotenv').config();  
 
 // Configurar la conexión a PostgreSQL
 const pool = new Pool({
@@ -11,7 +11,11 @@ const pool = new Pool({
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
+    max: 20, 
+    idleTimeoutMillis: 30000, // Tiempo de espera para una conexión inactiva
+    connectionTimeoutMillis: 2000, // Tiempo de espera para una conexión nueva
 });
+
 
 // Función para leer la consulta SQL
 async function leerConsultaSQL() {
@@ -28,12 +32,6 @@ async function leerConsultaSQL() {
 async function ejecutarSQL(sql) {
     try {
         const results = await pool.query(sql);
-        if (results && results.rows.length > 0) {
-            const primeraFila = results.rows[0];
-            console.log('Marca:', primeraFila.tiempo);
-        } else {
-            console.log('No se encontraron filas en el resultado.');
-        }
     } catch (error) {
         console.error('Error al ejecutar la consulta:', error.message);
     }
@@ -44,15 +42,14 @@ async function escucharNotificaciones() {
     const client = await pool.connect();
     const sql = await leerConsultaSQL();
     try {
-        // Escuchar notificaciones en el canal 'nueva_fila'
         await client.query('LISTEN nueva_fila');
         client.on('notification', async (msg) => {
-            
-            await ejecutarSQL(sql);  // Ejecutar consulta cuando se recibe la notificación
+            await ejecutarSQL(sql);  
         });
-        console.log('Escuchando inserciones en la base de datos...');
     } catch (error) {
         console.error('Error al escuchar notificaciones:', error.message);
+    } finally {
+        client.release(); // Libera la conexión 
     }
 }
 
@@ -77,6 +74,7 @@ function createWindow() {
         // Escuchar notificaciones de la base de datos
         escucharNotificaciones().catch((error) => {
             console.error('Error en la ejecución de escucha:', error);
+            
         });
     });
 }
@@ -95,4 +93,3 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
