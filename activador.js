@@ -2,8 +2,7 @@ const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs').promises;
 const { Pool } = require('pg');
-require('dotenv').config();  // Cargar variables de entorno
-const ws = new WebSocket('ws://localhost:55555');
+require('dotenv').config();
 
 // Configurar la conexión a PostgreSQL
 const pool = new Pool({
@@ -13,6 +12,9 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
 });
+
+const ws = new WebSocket('ws://localhost:55555');
+let isWsOpen = false;  
 
 // Función para leer la consulta SQL
 async function leerConsultaSQL() {
@@ -31,7 +33,17 @@ async function ejecutarSQL(sql) {
         const results = await pool.query(sql);
         if (results && results.rows.length > 0) {
             const primeraFila = results.rows[0];
-            console.log('Marca:', primeraFila.tiempo);
+            const mensaje = `Marca: ${primeraFila.tiempo}`;
+            console.log(mensaje);
+            
+            //logica para enviar mensaje
+
+
+
+
+            //if (isWsOpen) {
+            //    ws.send(mensaje);  
+            //}
         } else {
             console.log('No se encontraron filas en el resultado.');
         }
@@ -48,8 +60,7 @@ async function escucharNotificaciones() {
         // Escuchar notificaciones en el canal 'nueva_fila'
         await client.query('LISTEN nueva_fila');
         client.on('notification', async (msg) => {
-            
-            await ejecutarSQL(sql);  // Ejecutar consulta cuando se recibe la notificación
+            await ejecutarSQL(sql);  
         });
         console.log('Escuchando inserciones en la base de datos...');
     } catch (error) {
@@ -57,24 +68,29 @@ async function escucharNotificaciones() {
     }
 }
 
-
-
-
-
-// Escuchar cuando la conexión esté abierta
+// Manejar eventos del WebSocket
 ws.on('open', function open() {
-    console.log('Conectado al proceso principal');
-    
-    // Enviar el mensaje "hola"
-    ws.send('hola');
+    console.log('Conexión WebSocket establecida');
+    isWsOpen = true;  // Cambiar el estado de la conexión
 });
 
-// Manejar errores en la conexión
 ws.on('error', function error(err) {
-    console.error('Error en la conexion:', err);
+    console.error('Error en la conexión:', err);
 });
 
-// Manejar cierre de la conexión
 ws.on('close', function close() {
-    console.log('Conexion cerrada');
+    console.log('Conexión WebSocket cerrada');
+    isWsOpen = false;  // Cambiar el estado de la conexión
+    pool.end(() => {
+        console.log('Conexión a PostgreSQL cerrada');
+    });
 });
+
+// Llamar a la función para escuchar notificaciones
+escucharNotificaciones()
+    .then(() => {
+        console.log('Notificaciones activadas con éxito.');
+    })
+    .catch(error => {
+        console.error('Error al activar la escucha de notificaciones:', error.message);
+    });

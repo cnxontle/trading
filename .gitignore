@@ -1,5 +1,2 @@
-/obj/
-/bin/
 .env
 /node_modules/
-/csv/
