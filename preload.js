@@ -1,7 +1,7 @@
 window.addEventListener('DOMContentLoaded', () => {
     const script = document.createElement('script');
     script.textContent = `
-  function obtenerValor() {
+    function obtenerValor() {
     // Seleccionar los elementos del DOM correspondientes a los tickers  
     const tickers = {
         "AAVE_USD": document.querySelector('p[data-testid="watchlist_value_AAVE-USD"]'),
@@ -177,9 +177,9 @@ window.addEventListener('DOMContentLoaded', () => {
     Object.keys(tickers).forEach(ticker => {
         tickers[ticker] = null;
     });
-}
-
-let intervalo = setInterval(obtenerValor, 1000);
+    setTimeout(obtenerValor, 1000);
+    }
+    obtenerValor();
     `;
     document.head.appendChild(script);
 });
