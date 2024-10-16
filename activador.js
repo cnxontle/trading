@@ -31,24 +31,72 @@ async function leerConsultaSQL() {
 async function ejecutarSQL(sql) {
     try {
         const results = await pool.query(sql);
-        if (results && results.rows.length > 0) {
+        if (results && results.rows.length === 2) {  // Aseguramos que haya exactamente 2 filas
             const primeraFila = results.rows[0];
-            const mensaje = `Marca: ${primeraFila.tiempo}`;
-            console.log(mensaje);
-            
-            //logica para enviar mensaje
+            const segundaFila = results.rows[1];
 
+            // Obtenemos los valores de la primera y segunda columnas
+            const id = primeraFila.id;
+            const tiempo = primeraFila.tiempo;
 
+            // Creamos un nuevo objeto para almacenar los resultados de las operaciones desde la tercera columna en adelante
+            let resultadoFinal = {
+                id: id,
+                tiempo: tiempo
+            };
 
+            let sumaResultados = 0;
+            let totalColumnas = 0;
 
-            //if (isWsOpen) {
-            //    ws.send(mensaje);  
-            //}
+            // Iteramos sobre todas las columnas (incluyendo más allá de la 32)
+            const columnas = Object.keys(primeraFila);
+            let resultados = {}; // Objeto para almacenar los resultados ya calculados
+            for (let i = 2; i < columnas.length; i++) {
+                const columna = columnas[i];
+                const valorPrimeraFila = primeraFila[columna];
+                const valorSegundaFila = segundaFila[columna];
+
+                // Realizamos la operación de pendiente
+                const resultado = ((valorPrimeraFila - valorSegundaFila) / valorSegundaFila) * 100;
+
+                // Almacenamos el resultado para reutilizar
+                resultadoFinal[columna] = resultado;
+                resultados[columna] = resultado;
+
+                // Solo acumulamos los resultados entre la columna 2 y 32
+                if (i <= 31) {
+                    sumaResultados += resultado;
+                    totalColumnas++;
+                }
+            }
+
+            // Calculamos el promedio de los resultados de las columnas 2 a 32
+            const promedio = sumaResultados / totalColumnas;
+
+            // Asignamos la letra correspondiente en la columna 'clima' según el valor del promedio
+            let clima;
+            if (promedio > 1) {
+                clima = 'b';
+            } else if (promedio > 0.05) {
+                clima = 'd';
+            } else if (promedio > -0.05) {
+                clima = 'o';
+            } else if (promedio > -1) {
+                clima = 'q';
+            } else {
+                clima = 'p';
+            }
+
+            // Añadimos la columna 'clima' al resultado final
+            resultadoFinal.clima = clima;
+
+            // Imprimimos el resultado final
+            console.log("Resultado final:", resultadoFinal);
         } else {
-            console.log('No se encontraron filas en el resultado.');
+            console.log("Se esperaban exactamente 2 filas, pero se obtuvieron:", results.rows.length);
         }
     } catch (error) {
-        console.error('Error al ejecutar la consulta:', error.message);
+        console.error("Error al ejecutar SQL:", error);
     }
 }
 
