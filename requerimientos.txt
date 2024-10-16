@@ -5,3 +5,4 @@ dotnet tool install --global Microsoft.Playwright.CLI
 playwright install
 
 npm install electron --save-dev
+npm install ws
