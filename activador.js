@@ -6,11 +6,11 @@ require('dotenv').config();
 
 // Configurar la conexión a PostgreSQL
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
+    user: process.env.DB2_USER,
+    host: process.env.DB2_HOST,
+    database: process.env.DB2_NAME,
+    password: process.env.DB2_PASSWORD,
+    port: process.env.DB2_PORT,
 });
 
 const ws = new WebSocket('ws://localhost:55555');
