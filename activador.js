@@ -16,6 +16,24 @@ const pool = new Pool({
 const ws = new WebSocket('ws://localhost:55555');
 let isWsOpen = false;  
 
+// Funcion de Microclima
+function obtenerMclima(promedio) {
+    let mclima;
+
+    if (promedio > 2) {
+        mclima = 'b';
+    } else if (promedio > 0.5) {
+        mclima = 'd';
+    } else if (promedio > -0.5) {
+        mclima = 'o';
+    } else if (promedio > -2) {
+        mclima = 'q';
+    } else {
+        mclima = 'p';
+    }
+    return mclima;
+}
+
 // Función para leer la consulta SQL
 async function leerConsultaSQL() {
     try {
@@ -45,8 +63,13 @@ async function ejecutarSQL(sql) {
                 tiempo: tiempo
             };
 
-            let sumaResultados = 0;
-            let totalColumnas = 0;
+            let sumaResultadosCripto = 0;
+            let totalColumnasCripto = 0;
+            let ResultadoSP = 0;
+            let ResultadoEner = 0;
+            let totalColumnasEner = 0;
+            let ResultadoComm = 0;
+            let totalColumnasComm = 0;
 
             // Iteramos sobre todas las columnas (incluyendo más allá de la 32)
             const columnas = Object.keys(primeraFila);
@@ -63,35 +86,52 @@ async function ejecutarSQL(sql) {
                 resultadoFinal[columna] = resultado;
                 resultados[columna] = resultado;
 
-                // Solo acumulamos los resultados entre la columna 2 y 32
-                if (i <= 31) {
-                    sumaResultados += resultado;
-                    totalColumnas++;
+                // Solo acumulamos los resultados entre la columna 2 y 33
+                if (i <= 32) {
+                    sumaResultadosCripto += resultado;
+                    totalColumnasCripto++;
                 }
+                if (i == 74) {
+                    ResultadoSP = resultado;
+                }
+                if (62 >= i <= 66){
+                    ResultadoEner += resultado;
+                    totalColumnasEner++;
+                }
+                if (57 >= i <= 61){
+                    ResultadoComm += resultado;
+                    totalColumnasComm++;
+                }
+
             }
 
             // Calculamos el promedio de los resultados de las columnas 2 a 32
-            const promedio = sumaResultados / totalColumnas;
+            const promedioCripto = sumaResultadosCripto / totalColumnasCripto;
+            const promedioEner = ResultadoEner / totalColumnasEner;
+            const promedioComm = ResultadoComm / totalColumnasComm;
+            const promedioSP = ResultadoSP;
+
 
             // Asignamos la letra correspondiente en la columna 'clima' según el valor del promedio
-            let clima;
-            if (promedio > 1) {
-                clima = 'b';
-            } else if (promedio > 0.05) {
-                clima = 'd';
-            } else if (promedio > -0.05) {
-                clima = 'o';
-            } else if (promedio > -1) {
-                clima = 'q';
-            } else {
-                clima = 'p';
-            }
-
+            let mclimaCripto = obtenerMclima(promedioCripto);
+            let mclimaSP = obtenerMclima(promedioSP);
+            let mclimaEner = obtenerMclima(promedioEner);
+            let mclimaComm = obtenerMclima(promedioComm);
+            
+            
             // Añadimos la columna 'clima' al resultado final
-            resultadoFinal.clima = clima;
+            resultadoFinal.clima = mclimaCripto + mclimaSP + mclimaEner + mclimaComm;
 
             // Imprimimos el resultado final
             console.log("Resultado final:", resultadoFinal);
+            
+            // Enviamos el resultado final al servidor WebSocket
+            //if (isWsOpen) {
+            //    ws.send(JSON.stringify(resultadoFinal));
+            //} else {
+            //    console.error('No se puede enviar el mensaje porque el WebSocket no está abierto.');
+            //}
+
         } else {
             console.log("Se esperaban exactamente 2 filas, pero se obtuvieron:", results.rows.length);
         }
