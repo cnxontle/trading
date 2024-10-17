@@ -53,75 +53,87 @@ async function ejecutarSQL(sql) {
         try {
             const results = await pool.query(sql);
             if (results && results.rows.length === 2) {  // Se esperan 2 filas
-                
-                // Se accede a las soluciones y a las filas de resultados
                 const primeraSolucion = soluciones[0];
                 const segundaSolucion = soluciones[1];
                 const tercerSolucion = soluciones[2];
                 const cuartaSolucion = soluciones[3];
                 const quintaSolucion = soluciones[4];
+
                 const primeraFila = results.rows[0];
                 const segundaFila = results.rows[1];
                 const id = primeraFila.id;
                 const tiempo = primeraFila.tiempo;
-    
-                // se crea un objeto para almacenar los resultados
-                let resultadoFinal = {id: id, tiempo: tiempo};
-                let sumaResultadosCripto = 0;
-                let totalColumnasCripto = 0;
-                let ResultadoSP = 0;
-                let ResultadoEner = 0;
-                let totalColumnasEner = 0;
-                let ResultadoComm = 0;
-                let totalColumnasComm = 0;
-    
-                // Iteramos sobre todas las columnas (incluyendo más allá de la 32)
                 const columnas = Object.keys(primeraFila);
-                let resultados = {}; // Objeto para almacenar los resultados ya calculados
-                for (let i = 2; i < columnas.length; i++) {
-                    const columna = columnas[i];
-                    const valorPrimeraFila = primeraFila[columna];
-                    const valorSegundaFila = segundaFila[columna];
-                    const pendiente = ((valorPrimeraFila - valorSegundaFila) / valorSegundaFila) * 100;
-                    resultadoFinal[columna] = pendiente;
+                
+                let pendientes = [];
+                let sumaPendientesCripto = 0;
+                let totalColumnasCripto = 0;
+                let PendienteSP500 = 0;
+                let sumaPendientesEner = 0;
+                let totalColumnasEner = 0;
+                let sumaPendientesComm = 0;
+                let totalColumnasComm = 0;
+                let climaActual;
     
-                    // Acumular sumas de pendientes
+                pendientes.push(id);
+                pendientes.push(tiempo);
+
+                // Iterar sobre todas las columnas
+                for (let i = 2; i < columnas.length; i++) {
+                    const valorPrimeraFila = primeraFila[columnas[i]];
+                    const valorSegundaFila = segundaFila[columnas[i]];
+                    const pendiente = ((valorPrimeraFila - valorSegundaFila) / valorSegundaFila) * 100;
+                    pendientes.push(pendiente);
                     if (i <= 32) {
-                        sumaResultadosCripto += pendiente;
+                        sumaPendientesCripto += pendiente;
                         totalColumnasCripto++;
                     }
                     if (i == 74) {
-                        ResultadoSP = pendiente;
+                        PendienteSP500 = pendiente;
                     }
                     if (62 >= i <= 66){
-                        ResultadoEner += pendiente;
+                        sumaPendientesEner += pendiente;
                         totalColumnasEner++;
                     }
                     if (57 >= i <= 61){
-                        ResultadoComm += pendiente;
+                        sumaPendientesComm += pendiente;
                         totalColumnasComm++;
                     }
-    
                 }
     
-                // Calcular el promedio de los resultados
-                const promedioCripto = sumaResultadosCripto / totalColumnasCripto;
-                const promedioEner = ResultadoEner / totalColumnasEner;
-                const promedioComm = ResultadoComm / totalColumnasComm;
-                const promedioSP = ResultadoSP;
+                // Calcular el promedio de las pendientes
+                const promedioCripto = sumaPendientesCripto / totalColumnasCripto;
+                const promedioSP = PendienteSP500;
+                const promedioEner = sumaPendientesEner / totalColumnasEner;
+                const promedioComm = sumaPendientesComm / totalColumnasComm;
     
-                // Obtener microclimas
+                // Obtener microclimas y calcular el clima actual
                 let mclimaCripto = obtenerMclima(promedioCripto);
                 let mclimaSP = obtenerMclima(promedioSP);
                 let mclimaEner = obtenerMclima(promedioEner);
                 let mclimaComm = obtenerMclima(promedioComm);
-                
-                // Añadir la columna 'clima' al resultado final
-                resultadoFinal.clima = mclimaCripto + mclimaSP + mclimaEner + mclimaComm;
+                climaActual = mclimaCripto + mclimaSP + mclimaEner + mclimaComm;
     
                 // Imprimimos el resultado final
-                console.log("clima:", resultadoFinal.clima, primeraSolucion);
+                console.log(primeraFila.tiempo, primeraFila.btc_usd, segundaFila.btc_usd, pendientes[9]);
                 
+
+                // Mensaje de entrada
+
+                // iterar sonbre banderas de soluciones activas
+                // guardar parametros de salida
+
+
+
+
+
+                // Mensaje de salida
+
+                // iterar sobre banderas de soluciones inactivas
+                
+
+
+
                 // Enviamos el resultado final al servidor WebSocket
                 //if (isWsOpen) {
                 //    ws.send(JSON.stringify(resultadoFinal));
@@ -138,7 +150,6 @@ async function ejecutarSQL(sql) {
     } else {
         console.log('Soluciones no está disponible aún');
     }
-    
 }
 
 // Función para escuchar notificaciones desde PostgreSQL
