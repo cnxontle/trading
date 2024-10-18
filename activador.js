@@ -47,7 +47,7 @@ async function leerConsultaSQL() {
     }
 }
 
-// Función para ejecutar la consulta SQL
+// Función para ejecutar la consulta SQL y enviar mensajes al WebSocket
 async function ejecutarSQL(sql) {
     if (soluciones) {
         try {
@@ -58,23 +58,20 @@ async function ejecutarSQL(sql) {
                 const id = primeraFila.id;
                 const tiempo = primeraFila.tiempo;
                 const columnas = Object.keys(primeraFila);
+
+                let sumaPendientesCripto = 0, totalColumnasCripto = 0;
+                let PendienteSP500 = 0;
+                let sumaPendientesEner = 0, totalColumnasEner = 0;
+                let sumaPendientesComm = 0, totalColumnasComm = 0;
+                let climaActual;
+                let mensaje;
+                let estrategiasActivas = Array(soluciones.length).fill(true);
+                let pool_stop_loss = Array(soluciones.length).fill(0);
+                let pool_take_profit = Array(soluciones.length).fill(0);
+                let pool_caducidad = Array(soluciones.length).fill(0);
                 
                 let pendientes = [];
-                let sumaPendientesCripto = 0;
-                let totalColumnasCripto = 0;
-                let PendienteSP500 = 0;
-                let sumaPendientesEner = 0;
-                let totalColumnasEner = 0;
-                let sumaPendientesComm = 0;
-                let totalColumnasComm = 0;
-                let climaActual;
-                let estrategiasActivas = [];
-                for (let i = 0; i < soluciones.length; i++) {
-                        estrategiasActivas.push(true);
-                    }
-                    
-                pendientes.push(id);
-                pendientes.push(tiempo);
+                pendientes.push(id, tiempo);
 
                 // Iterar sobre todas las columnas
                 for (let i = 2; i < columnas.length; i++) {
@@ -85,88 +82,86 @@ async function ejecutarSQL(sql) {
                     if (i <= 32) {
                         sumaPendientesCripto += pendiente;
                         totalColumnasCripto++;
-                    }
-                    if (i == 74) {
+                    } else if (i === 74) {
                         PendienteSP500 = pendiente;
-                    }
-                    if (62 >= i <= 66){
+                    } else if (62 <= i && i <= 66) {
                         sumaPendientesEner += pendiente;
                         totalColumnasEner++;
-                    }
-                    if (57 >= i <= 61){
+                    } else if (57 <= i && i <= 61) {
                         sumaPendientesComm += pendiente;
                         totalColumnasComm++;
                     }
                 }
-    
-                // Calcular el promedio de las pendientes
+
                 const promedioCripto = sumaPendientesCripto / totalColumnasCripto;
                 const promedioSP = PendienteSP500;
                 const promedioEner = sumaPendientesEner / totalColumnasEner;
                 const promedioComm = sumaPendientesComm / totalColumnasComm;
-    
-                // Obtener microclimas y calcular el clima actual
-                let mclimaCripto = obtenerMclima(promedioCripto);
-                let mclimaSP = obtenerMclima(promedioSP);
-                let mclimaEner = obtenerMclima(promedioEner);
-                let mclimaComm = obtenerMclima(promedioComm);
+                const mclimaCripto = obtenerMclima(promedioCripto);
+                const mclimaSP = obtenerMclima(promedioSP);
+                const mclimaEner = obtenerMclima(promedioEner);
+                const mclimaComm = obtenerMclima(promedioComm);
                 climaActual = mclimaCripto + mclimaSP + mclimaEner + mclimaComm;
-    
-                // Imprimimos el resultado final
+
                 console.log('Pendiente:', pendientes[9], 'Clima:', climaActual);
 
-                
-                // Mensaje de entrada
-                for (let i = 0; i < estrategiasActivas.length; i++) {
-                    let indice = soluciones[i].activo;
-                    let rangoMinimo;
-                    let rangoMaximo;
-                    
+                // Iterar sobre estrategias activas y procesar apertura y cierre
+                for (let i = 0; i < soluciones.length; i++) {
+                    const indice = soluciones[i].activo;
+                    let precioActivo = primeraFila[columnas[indice]];
+                    let rangoMinimo, rangoMaximo;
+
+                    // Cierre de estrategias
+                    if (!estrategiasActivas[i]) {
+                        pool_caducidad[i] -= 1;
+                        const stop_loss = pool_stop_loss[i];
+                        const take_profit = pool_take_profit[i];
+
+                        if (pool_caducidad[i] === 0 || precioActivo <= stop_loss || precioActivo >= take_profit) {
+                            mensaje = {
+                                "id": soluciones[i].id_cerrar,
+                                "accion": "cerrar"
+                            };
+                            estrategiasActivas[i] = true;
+                            pool_stop_loss[i] = 0;
+                            pool_take_profit[i] = 0;
+
+                            if (isWsOpen) {
+                                ws.send(JSON.stringify(mensaje));
+                                break;
+                            }
+                        }
+                    }
+                    // Apertura de estrategias
                     if (estrategiasActivas[i]) {
-                        if (soluciones[i].direccion_pendiente == "positiva") {
-                            rangoMinimo = soluciones[i].pendiente
-                            rangoMaximo = soluciones[i].pendiente + soluciones[i].rango_pendiente 
+                        if (soluciones[i].direccion_pendiente === "positiva") {
+                            rangoMinimo = soluciones[i].pendiente;
+                            rangoMaximo = soluciones[i].pendiente + soluciones[i].rango_pendiente;
                         } else {
-                            rangoMaximo = soluciones[i].pendiente
-                            rangoMinimo = soluciones[i].pendiente - soluciones[i].rango_pendiente 
+                            rangoMaximo = soluciones[i].pendiente;
+                            rangoMinimo = soluciones[i].pendiente - soluciones[i].rango_pendiente;
                         }
-
-                        if ((climaActual == soluciones[i].clima) && (rangoMinimo <= pendientes[indice] <= rangoMaximo) ) {
-                            console.log("Se activa la estrategia");
-                            // enviar mensaje de activacion
-                            // guardar parametros de entrada
-                            // guardar parametros de salida
-
+                        if (climaActual === soluciones[i].clima &&
+                            rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo) {
+                            
+                            estrategiasActivas[i] = false;
+                            pool_stop_loss[i] = precioActivo - (precioActivo * (soluciones[i].stop_loss / 100));
+                            pool_take_profit[i] = precioActivo + (precioActivo * (soluciones[i].take_profit / 100));
+                            pool_caducidad[i] = soluciones[i].caducidad;
+                            mensaje = {
+                                "id": soluciones[i].id_abrir,
+                                "accion": "abrir",
+                                "operacion": soluciones[i].operacion,
+                                "stop_loss": pool_stop_loss[i],
+                                "take_profit": pool_take_profit[i]
+                            };
+                            if (isWsOpen) {
+                                ws.send(JSON.stringify(mensaje));
+                                break;
+                            }
                         }
-
                     }
                 }
-
-                // iterar sonbre banderas de soluciones activas
-                // guardar parametros de salida
-
-
-
-
-
-                // Mensaje de salida
-                for (let i = 0; i < estrategiasActivas.length; i++) {
-                    if (estrategiasActivas[i] == false) {
-                    }
-                }
-
-                // iterar sobre banderas de soluciones inactivas
-                
-
-
-
-                // Enviamos el resultado final al servidor WebSocket
-                //if (isWsOpen) {
-                //    ws.send(JSON.stringify(resultadoFinal));
-                //} else {
-                //    console.error('No se puede enviar el mensaje porque el WebSocket no está abierto.');
-                //}
-    
             } else {
                 console.log("Se esperaban exactamente 2 filas, pero se obtuvieron:", results.rows.length);
             }
@@ -177,6 +172,7 @@ async function ejecutarSQL(sql) {
         console.log('Soluciones no está disponible aún');
     }
 }
+
 
 // Función para escuchar notificaciones desde PostgreSQL
 async function escucharNotificaciones() {

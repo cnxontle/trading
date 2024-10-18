@@ -11,7 +11,9 @@
         "caducidad": 10005,
         "rendimiento_minimo": 0,
         "repeticiones": 0,
-        "rendimiento_total": 0
+        "rendimiento_total": 0,
+        "id_abrir": "btcusdt_1",
+        "id_cerrar": "btcusdt_2"
     },
     {
         "activo": 9,
@@ -25,7 +27,9 @@
         "caducidad": 10005,
         "rendimiento_minimo": 0,
         "repeticiones": 0,
-        "rendimiento_total": 0
+        "rendimiento_total": 0,
+        "id_abrir": "btcusdt_1",
+        "id_cerrar": "btcusdt_2"
     },
     {
         "activo": 9,
@@ -39,7 +43,9 @@
         "caducidad": 10005,
         "rendimiento_minimo": 0,
         "repeticiones": 0,
-        "rendimiento_total": 0
+        "rendimiento_total": 0,
+        "id_abrir": "btcusdt_1",
+        "id_cerrar": "btcusdt_2"
     },
     {
         "activo": 9,
@@ -53,7 +59,9 @@
         "caducidad": 10005,
         "rendimiento_minimo": 0,
         "repeticiones": 0,
-        "rendimiento_total": 0
+        "rendimiento_total": 0,
+        "id_abrir": "btcusdt_1",
+        "id_cerrar": "btcusdt_2"
     },
     {
         "activo": 9,
@@ -67,6 +75,8 @@
         "caducidad": 10005,
         "rendimiento_minimo": 0,
         "repeticiones": 0,
-        "rendimiento_total": 0
+        "rendimiento_total": 0,
+        "id_abrir": "btcusdt_1",
+        "id_cerrar": "btcusdt_2"
     }
 ]
