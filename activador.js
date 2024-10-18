@@ -53,12 +53,6 @@ async function ejecutarSQL(sql) {
         try {
             const results = await pool.query(sql);
             if (results && results.rows.length === 2) {  // Se esperan 2 filas
-                const primeraSolucion = soluciones[0];
-                const segundaSolucion = soluciones[1];
-                const tercerSolucion = soluciones[2];
-                const cuartaSolucion = soluciones[3];
-                const quintaSolucion = soluciones[4];
-
                 const primeraFila = results.rows[0];
                 const segundaFila = results.rows[1];
                 const id = primeraFila.id;
@@ -74,7 +68,11 @@ async function ejecutarSQL(sql) {
                 let sumaPendientesComm = 0;
                 let totalColumnasComm = 0;
                 let climaActual;
-    
+                let estrategiasActivas = [];
+                for (let i = 0; i < soluciones.length; i++) {
+                        estrategiasActivas.push(true);
+                    }
+                    
                 pendientes.push(id);
                 pendientes.push(tiempo);
 
@@ -115,10 +113,34 @@ async function ejecutarSQL(sql) {
                 climaActual = mclimaCripto + mclimaSP + mclimaEner + mclimaComm;
     
                 // Imprimimos el resultado final
-                console.log(primeraFila.tiempo, primeraFila.btc_usd, segundaFila.btc_usd, pendientes[9]);
-                
+                console.log('Pendiente:', pendientes[9], 'Clima:', climaActual);
 
+                
                 // Mensaje de entrada
+                for (let i = 0; i < estrategiasActivas.length; i++) {
+                    let indice = soluciones[i].activo;
+                    let rangoMinimo;
+                    let rangoMaximo;
+                    
+                    if (estrategiasActivas[i]) {
+                        if (soluciones[i].direccion_pendiente == "positiva") {
+                            rangoMinimo = soluciones[i].pendiente
+                            rangoMaximo = soluciones[i].pendiente + soluciones[i].rango_pendiente 
+                        } else {
+                            rangoMaximo = soluciones[i].pendiente
+                            rangoMinimo = soluciones[i].pendiente - soluciones[i].rango_pendiente 
+                        }
+
+                        if ((climaActual == soluciones[i].clima) && (rangoMinimo <= pendientes[indice] <= rangoMaximo) ) {
+                            console.log("Se activa la estrategia");
+                            // enviar mensaje de activacion
+                            // guardar parametros de entrada
+                            // guardar parametros de salida
+
+                        }
+
+                    }
+                }
 
                 // iterar sonbre banderas de soluciones activas
                 // guardar parametros de salida
@@ -128,6 +150,10 @@ async function ejecutarSQL(sql) {
 
 
                 // Mensaje de salida
+                for (let i = 0; i < estrategiasActivas.length; i++) {
+                    if (estrategiasActivas[i] == false) {
+                    }
+                }
 
                 // iterar sobre banderas de soluciones inactivas
                 
