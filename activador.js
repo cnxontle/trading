@@ -16,6 +16,10 @@ const pool = new Pool({
 const ws = new WebSocket('ws://localhost:55555');
 let isWsOpen = false; 
 let soluciones; 
+let estrategiasActivas;
+let pool_stop_loss;
+let pool_take_profit;
+let pool_caducidad;
 
 // Funcion de Microclima
 function obtenerMclima(promedio) {
@@ -65,10 +69,7 @@ async function ejecutarSQL(sql) {
                 let sumaPendientesComm = 0, totalColumnasComm = 0;
                 let climaActual;
                 let mensaje;
-                let estrategiasActivas = Array(soluciones.length).fill(true);
-                let pool_stop_loss = Array(soluciones.length).fill(0);
-                let pool_take_profit = Array(soluciones.length).fill(0);
-                let pool_caducidad = Array(soluciones.length).fill(0);
+                
                 
                 let pendientes = [];
                 pendientes.push(id, tiempo);
@@ -103,7 +104,7 @@ async function ejecutarSQL(sql) {
                 const mclimaComm = obtenerMclima(promedioComm);
                 climaActual = mclimaCripto + mclimaSP + mclimaEner + mclimaComm;
 
-                console.log('Pendiente:', pendientes[9], 'Clima:', climaActual);
+                console.log('Clima actual:', climaActual, 'Pendiente:', pendientes[9], "precio:", primeraFila[columnas[9]]);
 
                 // Iterar sobre estrategias activas y procesar apertura y cierre
                 for (let i = 0; i < soluciones.length; i++) {
@@ -120,7 +121,8 @@ async function ejecutarSQL(sql) {
                         if (pool_caducidad[i] === 0 || precioActivo <= stop_loss || precioActivo >= take_profit) {
                             mensaje = {
                                 "id": soluciones[i].id_cerrar,
-                                "accion": "cerrar"
+                                "accion": "cerrar",
+                                "precio": precioActivo
                             };
                             estrategiasActivas[i] = true;
                             pool_stop_loss[i] = 0;
@@ -145,15 +147,20 @@ async function ejecutarSQL(sql) {
                             rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo) {
                             
                             estrategiasActivas[i] = false;
-                            pool_stop_loss[i] = precioActivo - (precioActivo * (soluciones[i].stop_loss / 100));
-                            pool_take_profit[i] = precioActivo + (precioActivo * (soluciones[i].take_profit / 100));
+                            const precioActivoNum = parseFloat(precioActivo);
+                            const stopLossNum = parseFloat(soluciones[i].stop_loss);
+                            const takeProfitNum = parseFloat(soluciones[i].take_profit);
+
+                            pool_stop_loss[i] = precioActivoNum - (precioActivoNum * (stopLossNum / 100));
+                            pool_take_profit[i] = precioActivoNum + (precioActivoNum * (takeProfitNum / 100));
                             pool_caducidad[i] = soluciones[i].caducidad;
                             mensaje = {
                                 "id": soluciones[i].id_abrir,
                                 "accion": "abrir",
                                 "operacion": soluciones[i].operacion,
                                 "stop_loss": pool_stop_loss[i],
-                                "take_profit": pool_take_profit[i]
+                                "take_profit": pool_take_profit[i],
+                                "precio": precioActivo
                             };
                             if (isWsOpen) {
                                 ws.send(JSON.stringify(mensaje));
@@ -195,6 +202,10 @@ async function cargarSoluciones() {
     try {
         const data = await fs.readFile(path.join(__dirname, 'soluciones.json'), 'utf8');
         soluciones = JSON.parse(data);
+        estrategiasActivas = Array(soluciones.length).fill(true);
+        pool_stop_loss = Array(soluciones.length).fill(0);
+        pool_take_profit = Array(soluciones.length).fill(0);
+        pool_caducidad = Array(soluciones.length).fill(0);
     } catch (error) {
         console.error('Error al cargar el archivo JSON:', error);
     }
