@@ -20,6 +20,7 @@ let estrategiasActivas;
 let pool_stop_loss;
 let pool_take_profit;
 let pool_caducidad;
+let bloqueado = false;
 
 // Funcion de Microclima
 function obtenerMclima(promedio) {
@@ -53,6 +54,11 @@ async function leerConsultaSQL() {
 
 // Función para ejecutar la consulta SQL y enviar mensajes al WebSocket
 async function ejecutarSQL(sql) {
+    if (bloqueado) {
+        console.log('SQL está en ejecución, omitiendo nueva ejecución');
+        return;
+    }
+    bloqueado = true;
     if (soluciones) {
         try {
             const results = await pool.query(sql);
@@ -69,8 +75,6 @@ async function ejecutarSQL(sql) {
                 let sumaPendientesComm = 0, totalColumnasComm = 0;
                 let climaActual;
                 let mensaje;
-                
-                
                 let pendientes = [];
                 pendientes.push(id, tiempo);
 
@@ -104,7 +108,7 @@ async function ejecutarSQL(sql) {
                 const mclimaComm = obtenerMclima(promedioComm);
                 climaActual = mclimaCripto + mclimaSP + mclimaEner + mclimaComm;
 
-                console.log('Clima actual:', climaActual, 'Pendiente:', pendientes[9], "precio:", primeraFila[columnas[9]]);
+                console.log('Clima actual:', climaActual, 'Pendiente:', pendientes[13], "precio:", primeraFila[columnas[13]]);
 
                 // Iterar sobre estrategias activas y procesar apertura y cierre
                 for (let i = 0; i < soluciones.length; i++) {
@@ -124,12 +128,8 @@ async function ejecutarSQL(sql) {
                                 "accion": "cerrar",
                                 "precio": precioActivo
                             };
-                            estrategiasActivas[i] = true;
-                            pool_stop_loss[i] = 0;
-                            pool_take_profit[i] = 0;
-
                             if (isWsOpen) {
-                                ws.send(JSON.stringify(mensaje));
+                                await enviarMensajeWs(mensaje, i);
                                 break;
                             }
                         }
@@ -164,6 +164,7 @@ async function ejecutarSQL(sql) {
                             };
                             if (isWsOpen) {
                                 ws.send(JSON.stringify(mensaje));
+                                bloqueado = false;
                                 break;
                             }
                         }
@@ -171,15 +172,38 @@ async function ejecutarSQL(sql) {
                 }
             } else {
                 console.log("Se esperaban exactamente 2 filas, pero se obtuvieron:", results.rows.length);
+                bloqueado = false;
             }
         } catch (error) {
             console.error("Error al ejecutar SQL:", error);
+        } finally {
+            bloqueado = false;
         }
     } else {
         console.log('Soluciones no está disponible aún');
+        bloqueado = false;
     }
 }
 
+// Función para enviar mensajes al WebSocket
+async function enviarMensajeWs(mensaje, indice) {
+    return new Promise((resolve, reject) => {
+        ws.send(JSON.stringify(mensaje));
+        ws.once('message', (message) => {  
+            const respuesta = JSON.parse(message);
+            if (respuesta.status === 400) {
+                console.log('Error al cerrar la posición');
+                pool_caducidad[indice] = respuesta.segundos_restantes;
+                resolve();
+            } else if (respuesta.status === 200) {
+                estrategiasActivas[indice] = true;
+                pool_stop_loss[indice] = 0;
+                pool_take_profit[indice] = 0;
+                resolve();
+            }
+        });
+    });
+}
 
 // Función para escuchar notificaciones desde PostgreSQL
 async function escucharNotificaciones() {

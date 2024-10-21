@@ -2,7 +2,7 @@
     {
         "activo": 9,
         "clima": "qooo",
-        "pendiente": -1,
+        "pendiente": -10,
         "rango_pendiente": 2,
         "direccion_pendiente": "positiva",
         "operacion": "comprar",
@@ -18,7 +18,7 @@
     {
         "activo": 9,
         "clima": "qooo",
-        "pendiente": -1,
+        "pendiente": -10,
         "rango_pendiente": 2,
         "direccion_pendiente": "positiva",
         "operacion": "comprar",
@@ -34,7 +34,7 @@
     {
         "activo": 9,
         "clima": "oooo",
-        "pendiente": -1,
+        "pendiente": -10,
         "rango_pendiente": 2,
         "direccion_pendiente": "positiva",
         "operacion": "comprar",
@@ -50,7 +50,7 @@
     {
         "activo": 9,
         "clima": "qooo",
-        "pendiente": -1,
+        "pendiente": -10,
         "rango_pendiente": 2,
         "direccion_pendiente": "positiva",
         "operacion": "comprar",
@@ -64,15 +64,15 @@
         "id_cerrar": "btcusdt_2"
     },
     {
-        "activo": 9,
-        "clima": "qooo",
+        "activo": 13,
+        "clima": "oooo",
         "pendiente": -1,
         "rango_pendiente": 2,
         "direccion_pendiente": "positiva",
         "operacion": "comprar",
         "take_profit": 1.1,
         "stop_loss": 1,
-        "caducidad": 10005,
+        "caducidad": 40,
         "rendimiento_minimo": 0,
         "repeticiones": 0,
         "rendimiento_total": 0,
