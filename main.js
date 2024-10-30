@@ -66,7 +66,7 @@ async function handleMessage(ws, message) {
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
             await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
             await keySender.sendText(numericValue.toString());
-            //await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
         }catch (error) { console.error('algo salio mal'); }     
 
         // Código para intentar cerrar una posición
