@@ -67,46 +67,20 @@ async function handleMessage(ws, message) {
             await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
             await keySender.sendText(numericValue.toString());
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
-        }catch (error) { console.error('algo salio mal'); }     
+        }catch (error) { console.error('error en apertura...'); }     
 
         // Código para intentar cerrar una posición
-    } else if (data.accion === 'cerrar') {     //cerraru
+    } else if (data.accion === 'cerrar') {     
         console.log(`Intentando cerrar una posicion en ${activo}`);
         let mercado_cerrado = false;
         
         try{
-            // Cambiamos de pestaña a Positions
-            const positions_tab = await mainWindow.webContents.executeJavaScript(`
-                (() => {
-                  const button = document.querySelector('button[data-testid="positions_tab"]');
-                  return button ? (button.click(), 'Button clicked') : 'Button not found';
-                })();
-              `);
-            if (positions_tab === 'Button not found') return; // Si no se puede cambiar de pestaña, ya no se hace nada
-            
-            // Para que no se quede esperando si no se encuentra el botón de cerrar la posición
-            const boton_cerrar = await mainWindow.webContents.executeJavaScript(`
-                (() => {
-                  const button = document.querySelector('button[data-testid="cross_${activo}"]');
-                  return button ? (button.click(), 'Button clicked') : 'Button not found';
-                })();
-              `);
-            if (boton_cerrar === 'Button not found') return;
-
-            const boton_confirmar = await mainWindow.webContents.executeJavaScript(`
-                (() => {
-                    const button = document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]');
-                    return button ? (button.click(), 'Button clicked') : 'Button not found';
-                    }
-                })();
-                `);
-            if (boton_confirmar === 'Button not found') {
-                mercado_cerrado = true;
-                return;
-            }  
-            // Regresar a la pestaña de Watchlist
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="positions_tab"]').click();`);
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="cross_${activo}"]').click();`);
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
-        } catch (error) { console.error('Lo intentamos pero no pudo funcionar, yo hice las cosas mal...'); }
+
+        } catch (error) { console.error('error en cierre...'); }
 
             // Enviar respuesta al nodo activador
             if (!mercado_cerrado) {              // si la posición cierra correctamente, o no cierra por que nunca abrio
