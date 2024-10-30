@@ -124,7 +124,7 @@ async function ejecutarSQL(sql) {
 
                         if (pool_caducidad[i] === 0 || precioActivo <= stop_loss || precioActivo >= take_profit) {
                             mensaje = {
-                                "id": soluciones[i].id_cerrar,
+                                "id": soluciones[i].id,
                                 "accion": "cerrar",
                                 "precio": precioActivo
                             };
@@ -155,7 +155,7 @@ async function ejecutarSQL(sql) {
                             pool_take_profit[i] = precioActivoNum + (precioActivoNum * (takeProfitNum / 100));
                             pool_caducidad[i] = soluciones[i].caducidad;
                             mensaje = {
-                                "id": soluciones[i].id_abrir,
+                                "id": soluciones[i].id,
                                 "accion": "abrir",
                                 "operacion": soluciones[i].operacion,
                                 "stop_loss": pool_stop_loss[i],

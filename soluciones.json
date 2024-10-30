@@ -12,8 +12,7 @@
         "rendimiento_minimo": 0,
         "repeticiones": 0,
         "rendimiento_total": 0,
-        "id_abrir": "btcusdt_1",
-        "id_cerrar": "btcusdt_2"
+        "id": "btcusdt_1"
     },
     {
         "activo": 9,
@@ -28,8 +27,7 @@
         "rendimiento_minimo": 0,
         "repeticiones": 0,
         "rendimiento_total": 0,
-        "id_abrir": "btcusdt_1",
-        "id_cerrar": "btcusdt_2"
+        "id": "btcusdt_1"
     },
     {
         "activo": 9,
@@ -44,14 +42,13 @@
         "rendimiento_minimo": 0,
         "repeticiones": 0,
         "rendimiento_total": 0,
-        "id_abrir": "BTC-USD",
-        "id_cerrar": "BTC-USD"
+        "id": "BTC-USD"
     },
     {
         "activo": 139,
         "clima": "qooo",
-        "pendiente": 2.84,
-        "rango_pendiente": 2.48,
+        "pendiente": -10.84,
+        "rango_pendiente": 0.48,
         "direccion_pendiente": "negativa",
         "operacion": "vender",
         "take_profit": 0.64,
@@ -60,8 +57,7 @@
         "rendimiento_minimo": 0,
         "repeticiones": 0,
         "rendimiento_total": 0,
-        "id_abrir": "btcusdt_1",
-        "id_cerrar": "btcusdt_2"
+        "id": "btcusdt_1"
     },
     {
         "activo": 9,
@@ -76,7 +72,6 @@
         "rendimiento_minimo": 0,
         "repeticiones": 0,
         "rendimiento_total": 0,
-        "id_abrir": "BTC-USD",
-        "id_cerrar": "BTC-USD"
+        "id": "USD/MXN"
     }
 ]
