@@ -7,10 +7,12 @@ require('dotenv').config();
 // Iniciar el script de PowerShell
 const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
 const shell = spawn('pwsh', ['-File', sender]);
+sendKeys(""); // Enviar un texto vacío para que el script de PowerShell se inicie
 
 let taskQueue = Promise.resolve();
 let mainWindow;
 let numericValue = 4556;
+
 
 // Función para enviar texto
 async function sendKeys(text) {
@@ -72,13 +74,7 @@ async function handleMessage(ws, message) {
         console.log(`Intentando abrir una posicion en ${activo} de ${operacion}`);
         
         try{
-            const boton_watchlist = await mainWindow.webContents.executeJavaScript(`
-                (() => {
-                  const button = document.querySelector('button[data-testid="instrument_info_${activo}"]');
-                  return button ? (button.click(), 'Button clicked') : 'Button not found';
-                })();
-              `);
-            if (boton_watchlist === 'Button not found') return; // Si no se encuentra el botón del activo, ya no se hace nada
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_${activo}"]').click();`);
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
             await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
             await sendKeys(numericValue.toString());
