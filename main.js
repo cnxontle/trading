@@ -1,5 +1,4 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
-const { stat } = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
 const { spawn } = require('child_process');
@@ -11,12 +10,12 @@ const shell = spawn('pwsh', ['-File', sender]);
 
 let taskQueue = Promise.resolve();
 let mainWindow;
-let numericValue = 10;
+let numericValue = 4556;
 
 // Función para enviar texto
-function sendKeys(text) {
+async function sendKeys(text) {
     return new Promise((resolve, reject) => {
-        shell.stdin.write(text + '\n', (error) => {
+        shell.stdin.write('\n'+ text + '\n', (error) => {
             if (error) {
                 reject('Error al enviar texto:', error);
             } else {
@@ -82,13 +81,12 @@ async function handleMessage(ws, message) {
             if (boton_watchlist === 'Button not found') return; // Si no se encuentra el botón del activo, ya no se hace nada
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
             await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
-            sendKeys(numericValue.toString());
             await sendKeys(numericValue.toString());
-            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
+            //await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
         }catch (error) { console.error('error en apertura...'); }     
 
         // Código para intentar cerrar una posición
-    } else if (data.accion === 'cerrar') {     
+    } else if (data.accion === 'cerraru') {      //cerraru
         console.log(`Intentando cerrar una posicion en ${activo}`);
         let mercado_cerrado = false;
         
@@ -100,17 +98,17 @@ async function handleMessage(ws, message) {
 
         } catch (error) { console.error('error en cierre...'); }
 
-            // Enviar respuesta al nodo activador
-            if (!mercado_cerrado) {              // si la posición cierra correctamente, o no cierra por que nunca abrio
-                ws.send(JSON.stringify({
-                    status: 200,
-                }));
-            }  else if (mercado_cerrado) {      // si la posición esta abierta y no cierra por que el mercado esta cerrado
+        // Enviar respuesta al nodo activador
+        if (!mercado_cerrado) {              // si la posición cierra correctamente, o no cierra por que nunca abrio
             ws.send(JSON.stringify({
-                status: 400,
-                segundos_restantes: 15,         // Calcular cuantos segundos faltan a partir de la hora actual para la hora de apertura del mercado
-                }));
-            } 
+                status: 200,
+            }));
+        }  else if (mercado_cerrado) {      // si la posición esta abierta y no cierra por que el mercado esta cerrado
+        ws.send(JSON.stringify({
+            status: 400,
+            segundos_restantes: 15,         // Calcular cuantos segundos faltan a partir de la hora actual para la hora de apertura del mercado
+            }));
+        } 
     }
 }
 
