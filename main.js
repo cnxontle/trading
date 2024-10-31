@@ -2,12 +2,27 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const { stat } = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
+const { spawn } = require('child_process');
+const shell = spawn('pwsh', ['-File', sender]);
+const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
+require('dotenv').config();
 
 let taskQueue = Promise.resolve();
 let mainWindow;
-const keySender = require('node-key-sender');
 let numericValue = 10;
 
+// Función para enviar texto
+function sendKeys(text) {
+    return new Promise((resolve, reject) => {
+        shell.stdin.write(text + '\n', (error) => {
+            if (error) {
+                reject('Error al enviar texto:', error);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
 
 //Crear una ventana de navegador Electron 
 function createWindow() {
@@ -65,7 +80,8 @@ async function handleMessage(ws, message) {
             if (boton_watchlist === 'Button not found') return; // Si no se encuentra el botón del activo, ya no se hace nada
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
             await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
-            await keySender.sendText(numericValue.toString());
+            sendKeys(numericValue.toString());
+            await sendKeys(numericValue.toString());
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
         }catch (error) { console.error('error en apertura...'); }     
 
