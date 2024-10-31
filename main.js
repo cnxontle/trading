@@ -11,8 +11,7 @@ sendKeys(""); // Enviar un texto vacío para que el script de PowerShell se inic
 
 let taskQueue = Promise.resolve();
 let mainWindow;
-let numericValue = 4556;
-
+let numericValue;
 
 // Función para enviar texto
 async function sendKeys(text) {
@@ -74,24 +73,45 @@ async function handleMessage(ws, message) {
         console.log(`Intentando abrir una posicion en ${activo} de ${operacion}`);
         
         try{
-            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_${activo}"]').click();`);
-            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
-            await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
-            await sendKeys(numericValue.toString());
-            //await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
+            //verificar la cantidad disponible en la cartera
+            numericValue = await mainWindow.webContents.executeJavaScript(`
+                (() => {
+                    const span = document.querySelector('span[data-testid="default_margin_ballance"]');
+                    const rawValue = span ? span.textContent.trim() : '';
+                    const numericValue = rawValue.replace(/[^0-9.]/g, '');
+                    return numericValue;
+                })();
+            `);
+            numericValue = 10;  // SOLO PARA PRUEBAS (QUITAR ESTA LINEA CUANDO SE TERMINE DE PROBAR)
+            if (numericValue >= 10) {
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_${activo}"]').click();`);
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
+                await sendKeys(numericValue.toString().split('.')[0]);
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
+            }
         }catch (error) { console.error('error en apertura...'); }     
 
         // Código para intentar cerrar una posición
-    } else if (data.accion === 'cerraru') {      //cerraru
+    } else if (data.accion === 'cerrar') {      
         console.log(`Intentando cerrar una posicion en ${activo}`);
         let mercado_cerrado = false;
         
         try{
+            console.log('Cambiando a la pestana posiciones...');
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="positions_tab"]').click();`);
+            
+            console.log('Cerrando posicion...');
+            // aqui se debe verificar si el mercado esta cerrado, no se como hacerlo
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="cross_${activo}"]').click();`);
+                    
+            console.log('Confirmando cierre...');
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
+            
+            console.log('Cambiando a la pestana watchlist...');
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
-
+            
+            console.log('posicion cerrada...');
         } catch (error) { console.error('error en cierre...'); }
 
         // Enviar respuesta al nodo activador
@@ -100,9 +120,10 @@ async function handleMessage(ws, message) {
                 status: 200,
             }));
         }  else if (mercado_cerrado) {      // si la posición esta abierta y no cierra por que el mercado esta cerrado
-        ws.send(JSON.stringify({
+            let segundos; // Calcular cuantos segundos faltan a partir de la hora actual para la hora de apertura del mercado
+            ws.send(JSON.stringify({
             status: 400,
-            segundos_restantes: 15,         // Calcular cuantos segundos faltan a partir de la hora actual para la hora de apertura del mercado
+            segundos_restantes: 15,         // segundos que faltan para la apertura del mercado
             }));
         } 
     }

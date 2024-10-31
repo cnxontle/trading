@@ -1,6 +1,4 @@
 npm install electron --save-dev
 npm install ws
 
-npm install node-key-sender
-
-*Java necesario
+*Power shell core necesario
