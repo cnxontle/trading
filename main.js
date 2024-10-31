@@ -3,9 +3,11 @@ const { stat } = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
 const { spawn } = require('child_process');
-const shell = spawn('pwsh', ['-File', sender]);
-const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
 require('dotenv').config();
+
+// Iniciar el script de PowerShell
+const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
+const shell = spawn('pwsh', ['-File', sender]);
 
 let taskQueue = Promise.resolve();
 let mainWindow;
