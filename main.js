@@ -118,15 +118,31 @@ async function handleMessage(ws, message) {
         } catch (error) { console.error('error en cierre...'); }
 
         // Enviar respuesta al nodo activador
-        if (!mercado_cerrado) {              // si la posición cierra correctamente, o no cierra por que nunca abrio
+        if (!mercado_cerrado) {             
             ws.send(JSON.stringify({
                 status: 200,
             }));
-        }  else if (mercado_cerrado) {      // si la posición esta abierta y no cierra por que el mercado esta cerrado
-            let segundos;                   // Calcular cuantos segundos faltan para la hora de apertura del mercado
+        }  else if (mercado_cerrado) {      
+            let segundos = await mainWindow.webContents.executeJavaScript(`
+               (() => {
+                    const span = document.querySelector('span[data-testid="market_schedule_value"]');
+                    if (span) {
+                        const timeText = span.textContent;
+                        const timeMatch = timeText.match(/(\\d+)d\\s+(\\d+)h\\s+(\\d+)m/);
+                        if (timeMatch) {
+                            const days = parseInt(timeMatch[1], 10);
+                            const hours = parseInt(timeMatch[2], 10);
+                            const minutes = parseInt(timeMatch[3], 10);
+                            const totalSeconds = (days * 86400) + (hours * 3600) + (minutes * 60) + 60;
+                            return totalSeconds;
+                        }
+                    }
+                    return null;
+                })();
+            `);               
             ws.send(JSON.stringify({
             status: 400,
-            segundos_restantes: 15,         // reempazar 15 por el valor de segundos
+            segundos_restantes: segundos,         
             }));
         } 
     }
