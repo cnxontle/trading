@@ -102,10 +102,12 @@ async function handleMessage(ws, message) {
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="positions_tab"]').click();`);
             
             console.log('Cerrando posicion...');
-            // aqui se debe verificar si el mercado esta cerrado, no se como hacerlo
+            // verificar si cambiamos a la ventana pocisiones (la posicion abierta tiene un + o - para indicar gananca o perdida)
+            //si no encontramos ese simbolo entonces no hay ninguna posicion abierta, podemos terminar el try (no se si un return termina el try y se manda o no el mensaje al nodo activador)
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="cross_${activo}"]').click();`);
                     
             console.log('Confirmando cierre...');
+            // aqui se debe verificar si el mercado esta cerrado, si el boton de comfirmar cierre no esta disponible entonces el mercado estaba cerrado
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
             
             console.log('Cambiando a la pestana watchlist...');
@@ -120,10 +122,10 @@ async function handleMessage(ws, message) {
                 status: 200,
             }));
         }  else if (mercado_cerrado) {      // si la posición esta abierta y no cierra por que el mercado esta cerrado
-            let segundos; // Calcular cuantos segundos faltan a partir de la hora actual para la hora de apertura del mercado
+            let segundos;                   // Calcular cuantos segundos faltan para la hora de apertura del mercado
             ws.send(JSON.stringify({
             status: 400,
-            segundos_restantes: 15,         // segundos que faltan para la apertura del mercado
+            segundos_restantes: 15,         // reempazar 15 por el valor de segundos
             }));
         } 
     }
