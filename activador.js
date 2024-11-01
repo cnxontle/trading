@@ -115,25 +115,7 @@ async function ejecutarSQL(sql) {
                     const indice = soluciones[i].activo;
                     let precioActivo = primeraFila[columnas[indice]];
                     let rangoMinimo, rangoMaximo;
-
-                    // Cierre de estrategias
-                    if (!estrategiasActivas[i]) {
-                        pool_caducidad[i] -= 1;
-                        const stop_loss = pool_stop_loss[i];
-                        const take_profit = pool_take_profit[i];
-
-                        if (pool_caducidad[i] === 0 || precioActivo <= stop_loss || precioActivo >= take_profit) {
-                            mensaje = {
-                                "id": soluciones[i].id,
-                                "accion": "cerrar",
-                                "precio": precioActivo
-                            };
-                            if (isWsOpen) {
-                                await enviarMensajeWs(mensaje, i);
-                                break;
-                            }
-                        }
-                    }
+                    
                     // Apertura de estrategias
                     if (estrategiasActivas[i]) {
                         if (soluciones[i].direccion_pendiente === "positiva") {
@@ -165,6 +147,24 @@ async function ejecutarSQL(sql) {
                             if (isWsOpen) {
                                 ws.send(JSON.stringify(mensaje));
                                 bloqueado = false;
+                                break;
+                            }
+                        }
+                    }
+                    // Cierre de estrategias
+                    if (!estrategiasActivas[i]) {
+                        pool_caducidad[i] -= 1;
+                        const stop_loss = pool_stop_loss[i];
+                        const take_profit = pool_take_profit[i];
+
+                        if (pool_caducidad[i] === 0 || precioActivo <= stop_loss || precioActivo >= take_profit) {
+                            mensaje = {
+                                "id": soluciones[i].id,
+                                "accion": "cerrar",
+                                "precio": precioActivo
+                            };
+                            if (isWsOpen) {
+                                await enviarMensajeWs(mensaje, i);
                                 break;
                             }
                         }
