@@ -40,7 +40,7 @@ function createWindow() {
     });
     mainWindow.loadURL('https://trading.quantfury.com/');
 }
-//
+// 
 app.whenReady().then(() => {
     createWindow();
     app.on('activate', () => {
@@ -102,14 +102,34 @@ async function handleMessage(ws, message) {
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="positions_tab"]').click();`);
             
             console.log('Cerrando posicion...');
-            // verificar si cambiamos a la ventana pocisiones (la posicion abierta tiene un + o - para indicar gananca o perdida)
-            //si no encontramos ese simbolo entonces no hay ninguna posicion abierta, podemos terminar el try (no se si un return termina el try y se manda o no el mensaje al nodo activador)
+
+
+            // verificar si cambiamos a la pestaña pocisiones (la posicion abierta tiene un + o - para indicar gananca o perdida)
+            //si no encontramos ese simbolo entonces no hay ninguna posicion abierta, podemos verificar en que pestaña estamos de otra forma? no se..
+            // Si no estamos en la pestaña de posiciones, entonces enviar un mensaje 200 al nodo activador y  RETURN
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="cross_${activo}"]').click();`);
                     
             console.log('Confirmando cierre...');
+            
             // aqui se debe verificar si el mercado esta cerrado, si el boton de comfirmar cierre no esta disponible entonces el mercado estaba cerrado
-            // Si el mercado esta cerrado establecer la variable mercado_cerrado = True. tambien hay que regresar a watchlist, no nos pedemos quedar aqui
-            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
+            //PROBAR ESTE CODIGO PARA VERIFICAR SI EL MERCADO ESTA CERRADO:
+
+            /*  
+            let confirmButtonAvailable = await mainWindow.webContents.executeJavaScript(`
+                (() => {
+                    const confirmButton = document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]');
+                    return confirmButton ? !confirmButton.disabled : false;
+                })();
+            `);
+            if (!confirmButtonAvailable) {
+                mercado_cerrado = true;
+            } else {
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
+            }
+            */
+
+            // COMENTA ESTA LINEA PARA PROBAR EL CODIGO ANTERIOR, Y ELIMNARLA SI FUNCIONA
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);  
             
             console.log('Cambiando a la pestana watchlist...');
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
