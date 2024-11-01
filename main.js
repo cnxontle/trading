@@ -108,6 +108,7 @@ async function handleMessage(ws, message) {
                     
             console.log('Confirmando cierre...');
             // aqui se debe verificar si el mercado esta cerrado, si el boton de comfirmar cierre no esta disponible entonces el mercado estaba cerrado
+            // Si el mercado esta cerrado establecer la variable mercado_cerrado = True. tambien hay que regresar a watchlist, no nos pedemos quedar aqui
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
             
             console.log('Cambiando a la pestana watchlist...');
