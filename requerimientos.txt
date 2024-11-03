@@ -1,4 +1,10 @@
 npm install electron --save-dev
 npm install ws
+npm install dotenv
+npm install child-process
+
 
 *Power shell core necesario
+
+en linux:
+sudo apt install xdotool xclip
