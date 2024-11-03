@@ -1,6 +1,7 @@
 while ($true) {
     $input = [Console]::ReadLine()
     if ($input) {
-        & xdotool type "$input"
+        echo $input | xclip -selection clipboard
+        & xdotool key ctrl+v
     }
 }
