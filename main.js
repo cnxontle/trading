@@ -4,6 +4,10 @@ const WebSocket = require('ws');
 const { spawn } = require('child_process');
 require('dotenv').config();
 
+// Obtener el argumento de modo desde la línea de comandos
+const args = process.argv.slice(2);
+const mode = args.includes('r') ? 1 : 2;
+
 // Iniciar el script de PowerShell
 const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
 const shell = spawn('pwsh', ['-File', sender]);
@@ -28,19 +32,22 @@ async function sendKeys(text) {
 
 //Crear una ventana de navegador Electron 
 function createWindow() {
-    mainWindow = new BrowserWindow({
+    const options = {
         width: 1024,
         height: 768,
-        show: true,
+        show: mode === 2,
         webPreferences: {
-            nodeIntegration: false, 
-            contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js') 
-            }
-    });
+            nodeIntegration: false,
+            contextIsolation: true
+        }
+    };
+    if (mode === 1) {
+        options.webPreferences.preload = path.join(__dirname, 'preload.js');
+    }
+    mainWindow = new BrowserWindow(options);
     mainWindow.loadURL('https://trading.quantfury.com/');
 }
-// 
+
 app.whenReady().then(() => {
     createWindow();
     app.on('activate', () => {
@@ -49,6 +56,7 @@ app.whenReady().then(() => {
         }
     });
 });
+
 // Establecer el servidor WebSocket
 const wss = new WebSocket.Server({ port: 55555 }); 
     wss.on('connection', (ws) => {
