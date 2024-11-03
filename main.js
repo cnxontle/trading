@@ -92,16 +92,12 @@ async function handleMessage(ws, message) {
             `);
             numericValue = 10;  // SOLO PARA PRUEBAS (QUITAR ESTA LINEA CUANDO SE TERMINE DE PROBAR)
             if (numericValue >= 10) {
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_${activo}"]').click();`);
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
                 await sendKeys(numericValue.toString().split('.')[0]);
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
-                let profit = await mainWindow.webContents.executeJavaScript(`document.querySelector('span[data-testid="profit_${activo}"]').textContent;`);
-                while (profit !== '%') {
-                    profit = await mainWindow.webContents.executeJavaScript(`document.querySelector('span[data-testid="profit_${activo}"]').textContent;`);
-                         }
-                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
             }
         }catch (error) { console.error('error en apertura...'); }     
 
