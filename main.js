@@ -8,28 +8,14 @@ require('dotenv').config();
 const args = process.argv.slice(2);
 const mode = args.includes('r') ? 1 : 2;
 
-if (mode !== 1) { 
-    // Iniciar el script de PowerShell solo si el modo no es 1
-    const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
-    const shell = spawn('pwsh', ['-File', sender]);
-    sendKeys(""); // Enviar un texto vacío para que el script de PowerShell se inicie
-    }
+// Iniciar el script de PowerShell
+const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
+const shell = spawn('pwsh', ['-File', sender]);
+if (mode != 1) {sendKeys("")};
 
+let taskQueue = Promise.resolve();
 let mainWindow;
 let numericValue;
-let taskQueue = Promise.resolve();
-
-// Establecer el servidor WebSocket
-const wss = new WebSocket.Server({ port: 55555 }); 
-wss.on('connection', (ws) => {
-    console.log('Nodo activador conectado');
-    ws.on('message', (message) => {
-        taskQueue = taskQueue.then(() => handleMessage(ws, message));
-    });
-    ws.on('close', () => {
-        console.log('Conexion cerrada');
-    });
-});
 
 // Función para enviar texto
 async function sendKeys(text) {
@@ -70,6 +56,18 @@ app.whenReady().then(() => {
         }
     });
 });
+
+// Establecer el servidor WebSocket
+const wss = new WebSocket.Server({ port: 55555 }); 
+    wss.on('connection', (ws) => {
+        console.log('Nodo activador conectado');
+        ws.on('message', (message) => {
+            taskQueue = taskQueue.then(() => handleMessage(ws, message));
+        });
+        ws.on('close', () => {
+            console.log('Conexion cerrada');
+        });
+    });
 
 // Función para manejar los mensajes
 async function handleMessage(ws, message) {  
