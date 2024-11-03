@@ -120,7 +120,6 @@ async function handleMessage(ws, message) {
                     
             console.log('Confirmando cierre...');
             
- 
             let confirmButtonAvailable = await mainWindow.webContents.executeJavaScript(`
                 (() => {
                     const confirmButton = document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]');
@@ -137,6 +136,9 @@ async function handleMessage(ws, message) {
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
             
             console.log('posicion cerrada...');
+            // esperar a que document.querySelector('button[data-testid="instrument_info_WHR"]') ESTE DISPONIBLE EN EL DOM, NO DAR CLICK NUNCA
+            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]')`);
+
             
 
         } catch (error) { console.error('error en cierre...'); }
