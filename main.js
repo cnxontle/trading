@@ -120,10 +120,7 @@ async function handleMessage(ws, message) {
                     
             console.log('Confirmando cierre...');
             
-            // aqui se debe verificar si el mercado esta cerrado, si el boton de comfirmar cierre no esta disponible entonces el mercado estaba cerrado
-            //PROBAR ESTE CODIGO PARA VERIFICAR SI EL MERCADO ESTA CERRADO:
-
-            /*  
+ 
             let confirmButtonAvailable = await mainWindow.webContents.executeJavaScript(`
                 (() => {
                     const confirmButton = document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]');
@@ -135,15 +132,13 @@ async function handleMessage(ws, message) {
             } else {
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
             }
-            */
 
-            // COMENTA ESTA LINEA PARA PROBAR EL CODIGO ANTERIOR, Y ELIMNARLA SI FUNCIONA
-            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);  
-            
             console.log('Cambiando a la pestana watchlist...');
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
             
             console.log('posicion cerrada...');
+            
+
         } catch (error) { console.error('error en cierre...'); }
 
         // Enviar respuesta al nodo activador
