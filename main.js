@@ -13,7 +13,6 @@ const mode = args.includes('r') ? 1 : 2;
 const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
 const shell = spawn('pwsh', ['-File', sender]);
 
-
 let taskQueue = Promise.resolve();
 let mainWindow;
 let numericValue;
@@ -100,6 +99,9 @@ async function handleMessage(ws, message) {
                 await sendKeys(numericValue.toString().split('.')[0]);
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
+                while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));  
+                }
             }
         }catch (error) { console.error('error en apertura...'); }     
 
@@ -121,7 +123,8 @@ async function handleMessage(ws, message) {
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="cross_${activo}"]').click();`);
                     
             console.log('Confirmando cierre...');
-            
+
+            // Verificar si el botón de confirmación está disponible
             let confirmButtonAvailable = await mainWindow.webContents.executeJavaScript(`
                 (() => {
                     const confirmButton = document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]');
@@ -134,18 +137,12 @@ async function handleMessage(ws, message) {
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
             }
 
-            console.log('Cambiando a la pestana watchlist...');
+            // Esperar a que la posición se cierre
             while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
-                await new Promise(resolve => setTimeout(resolve, 100));  // Pausa breve antes de volver a verificar
+                await new Promise(resolve => setTimeout(resolve, 100));  
             }
-            
-           
-
             console.log('posicion cerrada...');
-            
-            
-
-            
+ 
 
         } catch (error) { console.error('error en cierre...'); }
 
