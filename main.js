@@ -93,13 +93,12 @@ async function handleMessage(ws, message) {
             `);
             numericValue = 10;  // SOLO PARA PRUEBAS (QUITAR ESTA LINEA CUANDO SE TERMINE DE PROBAR)
             if (numericValue >= 10) {
-                sendKeys("");
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_${activo}"]').click();`);
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
                 await sendKeys(numericValue.toString().split('.')[0]);
-                await new Promise(resolve => setTimeout(resolve, 50));
+                await new Promise(resolve => setTimeout(resolve, 500));
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
             }
         }catch (error) { console.error('error en apertura...'); }     
@@ -136,7 +135,7 @@ async function handleMessage(ws, message) {
             }
 
             console.log('Cambiando a la pestana watchlist...');
-            await new Promise(resolve => setTimeout(resolve, 5000));
+            await new Promise(resolve => setTimeout(resolve, 6000));
             
             console.log('posicion cerrada...');
             
