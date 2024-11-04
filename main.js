@@ -97,11 +97,12 @@ async function handleMessage(ws, message) {
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
                 await sendKeys(numericValue.toString().split('.')[0]);
-                await new Promise(resolve => setTimeout(resolve, 500));
-                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
-                while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
-                    await new Promise(resolve => setTimeout(resolve, 100));  
+                // esperar a que se actualice el valor de input deje de estar vacio
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').value === ''`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
                 }
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
+               
                 console.log('posicion abierta...');
             }
         }catch (error) { console.error('error en apertura...'); }     
