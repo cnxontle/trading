@@ -10,11 +10,11 @@ UNION ALL
     SELECT * 
     FROM valores 
     WHERE tiempo >= (
-        SELECT tiempo - INTERVAL '60 seconds' 
+        SELECT tiempo - INTERVAL '3600 seconds' 
         FROM ultima_fila
     )
     AND tiempo < (
-        SELECT tiempo - INTERVAL '55 seconds' 
+        SELECT tiempo - INTERVAL '3595 seconds' 
         FROM ultima_fila
     )
     ORDER BY tiempo DESC 
