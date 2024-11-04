@@ -102,7 +102,10 @@ async function handleMessage(ws, message) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
-               
+                // esperar a que document.querySelector('button[data-testid="instrument_info_WHR"]') deja de estar disponible
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') !== null`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
                 console.log('posicion abierta...');
             }
         }catch (error) { console.error('error en apertura...'); }     
