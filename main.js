@@ -128,7 +128,7 @@ async function handleMessage(ws, message) {
                     ws.send(JSON.stringify({
                         status: 200,
                     }));
-                    break;  
+                    return;  
                 }
                 await new Promise(resolve => setTimeout(resolve, 100));  
                 iterations++;  
