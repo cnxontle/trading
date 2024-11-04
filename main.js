@@ -4,6 +4,24 @@ const WebSocket = require('ws');
 const { spawn } = require('child_process');
 require('dotenv').config();
 
+const modal = '//*[@id="root"]/div/div[1]/div';
+
+function checkElementExistence(xpath) {
+  const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+  return result.singleNodeValue !== null;
+}
+
+async function waitForElementToDisappear(xpath) {
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      if (!checkElementExistence(xpath)) {
+        clearInterval(interval);
+        resolve();
+      }
+    }, 100); // Revisa cada 100 ms
+  });
+}
+
 // Obtener el argumento de modo desde la línea de comandos
 const args = process.argv.slice(2);
 const mode = args.includes('r') ? 1 : 2;
@@ -133,11 +151,11 @@ async function handleMessage(ws, message) {
             }
 
             console.log('Cambiando a la pestana watchlist...');
-            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
+            await waitForElementToDisappear(modal);
             
             console.log('posicion cerrada...');
-            // esperar a que document.querySelector('button[data-testid="instrument_info_WHR"]') ESTE DISPONIBLE EN EL DOM, NO DAR CLICK NUNCA
-            await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]')`);
+            
+            
 
             
 
