@@ -97,12 +97,12 @@ async function handleMessage(ws, message) {
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
                 await sendKeys(numericValue.toString().split('.')[0]);
-                // esperar a que se actualice el valor de input deje de estar vacio
+                // esperar a que se actualice el valor de input
                 while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').value === ''`)) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
-                // esperar a que document.querySelector('button[data-testid="instrument_info_WHR"]') deja de estar disponible
+                // esperar a que se termine de abrir la posicion
                 while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') !== null`)) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
@@ -120,14 +120,22 @@ async function handleMessage(ws, message) {
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="positions_tab"]').click();`);
             
             console.log('Cerrando posicion...');
-
-
-            // verificar si cambiamos a la pestaña pocisiones (la posicion abierta tiene un + o - para indicar gananca o perdida)
-            //si no encontramos ese simbolo entonces no hay ninguna posicion abierta, podemos verificar en que pestaña estamos de otra forma? no se..
-            // Si no estamos en la pestaña de posiciones, entonces enviar un mensaje 200 al nodo activador y  RETURN
+            
+            // Comprobar que nos encontramos en la pestaña de posiciones
+            let iterations = 0;
+            while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') !== null`)) {
+                if (iterations >= 50) {
+                    ws.send(JSON.stringify({
+                        status: 200,
+                    }));
+                    break;  
+                }
+                await new Promise(resolve => setTimeout(resolve, 100));  
+                iterations++;  
+            }
+            
+            // Cerrar la posición
             await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="cross_${activo}"]').click();`);
-                    
-            console.log('Confirmando cierre...');
 
             // Verificar si el botón de confirmación está disponible
             let confirmButtonAvailable = await mainWindow.webContents.executeJavaScript(`
@@ -141,15 +149,12 @@ async function handleMessage(ws, message) {
             } else {
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
             }
-
             // Esperar a que la posición se cierre
             while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
                 await new Promise(resolve => setTimeout(resolve, 100));  
             }
             console.log('posicion cerrada...');
- 
-
-        } catch (error) { console.error('error en cierre...'); }
+         } catch (error) { console.error('error en cierre...'); }
 
         // Enviar respuesta al nodo activador
         if (!mercado_cerrado) {             
