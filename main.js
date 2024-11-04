@@ -135,8 +135,12 @@ async function handleMessage(ws, message) {
             }
 
             console.log('Cambiando a la pestana watchlist...');
-            await new Promise(resolve => setTimeout(resolve, 6000));
+            while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
+                await new Promise(resolve => setTimeout(resolve, 100));  // Pausa breve antes de volver a verificar
+            }
             
+           
+
             console.log('posicion cerrada...');
             
             
