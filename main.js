@@ -4,24 +4,6 @@ const WebSocket = require('ws');
 const { spawn } = require('child_process');
 require('dotenv').config();
 
-const modal = '//*[@id="root"]/div/div[1]/div';
-
-function checkElementExistence(xpath) {
-  const result = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-  return result.singleNodeValue !== null;
-}
-
-async function waitForElementToDisappear(xpath) {
-  return new Promise((resolve) => {
-    const interval = setInterval(() => {
-      if (!checkElementExistence(xpath)) {
-        clearInterval(interval);
-        resolve();
-      }
-    }, 100); // Revisa cada 100 ms
-  });
-}
-
 // Obtener el argumento de modo desde la línea de comandos
 const args = process.argv.slice(2);
 const mode = args.includes('r') ? 1 : 2;
@@ -116,8 +98,6 @@ async function handleMessage(ws, message) {
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
                 await sendKeys(numericValue.toString().split('.')[0]);
                 await new Promise(resolve => setTimeout(resolve, 500));
-                          
-
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
             }
         }catch (error) { console.error('error en apertura...'); }     
@@ -154,7 +134,7 @@ async function handleMessage(ws, message) {
             }
 
             console.log('Cambiando a la pestana watchlist...');
-            await waitForElementToDisappear(modal);
+            await new Promise(resolve => setTimeout(resolve, 4000));
             
             console.log('posicion cerrada...');
             
