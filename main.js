@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const WebSocket = require('ws');
 const { spawn } = require('child_process');
+const { send } = require('process');
 require('dotenv').config();
 
 // Obtener el argumento de modo desde la línea de comandos
@@ -11,7 +12,7 @@ const mode = args.includes('r') ? 1 : 2;
 // Iniciar el script de PowerShell
 const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
 const shell = spawn('pwsh', ['-File', sender]);
-await sendKeys("");
+
 
 let taskQueue = Promise.resolve();
 let mainWindow;
@@ -92,6 +93,7 @@ async function handleMessage(ws, message) {
             `);
             numericValue = 10;  // SOLO PARA PRUEBAS (QUITAR ESTA LINEA CUANDO SE TERMINE DE PROBAR)
             if (numericValue >= 10) {
+                sendKeys("");
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_${activo}"]').click();`);
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
