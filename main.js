@@ -11,7 +11,7 @@ const mode = args.includes('r') ? 1 : 2;
 // Iniciar el script de PowerShell
 const sender = process.env.SO === 'windows' ? 'pwsh/windows.ps1' : 'pwsh/linux.ps1';
 const shell = spawn('pwsh', ['-File', sender]);
-if (mode != 1) {sendKeys("")};
+await sendKeys("");
 
 let taskQueue = Promise.resolve();
 let mainWindow;
@@ -97,7 +97,7 @@ async function handleMessage(ws, message) {
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
                 await sendKeys(numericValue.toString().split('.')[0]);
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 50));
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
             }
         }catch (error) { console.error('error en apertura...'); }     
@@ -134,7 +134,7 @@ async function handleMessage(ws, message) {
             }
 
             console.log('Cambiando a la pestana watchlist...');
-            await new Promise(resolve => setTimeout(resolve, 4000));
+            await new Promise(resolve => setTimeout(resolve, 5000));
             
             console.log('posicion cerrada...');
             
