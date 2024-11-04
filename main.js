@@ -102,6 +102,7 @@ async function handleMessage(ws, message) {
                 while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
                     await new Promise(resolve => setTimeout(resolve, 100));  
                 }
+                console.log('posicion abierta...');
             }
         }catch (error) { console.error('error en apertura...'); }     
 
