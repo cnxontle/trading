@@ -106,7 +106,7 @@ async function ejecutarSQL(sql) {
                 const mclimaSP = obtenerMclima(promedioSP);
                 const mclimaEner = obtenerMclima(promedioEner);
                 const mclimaComm = obtenerMclima(promedioComm);
-                climaActual = mclimaCripto + mclimaSP + mclimaEner + mclimaComm;
+                climaActual = mclimaCripto +  mclimaComm + mclimaEner + mclimaSP ;
 
                 console.log('Clima actual:', climaActual, 'Pendiente:', pendientes[13], "precio:", primeraFila[columnas[13]]);
 
