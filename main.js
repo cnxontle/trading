@@ -169,6 +169,7 @@ if (mode !== 1) {
                 let startTime = Date.now();
                 const max_time = 20000;
                 while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
+                    
                     // Si el modal no cierra recargar la página y enviar un mensaje 401
                     if (Date.now() - startTime > max_time) {
                         await mainWindow.webContents.executeJavaScript(`location.reload();`); 
