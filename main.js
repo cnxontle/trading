@@ -166,8 +166,8 @@ if (mode !== 1) {
                 }
                 
                 // si ya paso cierto tiempo (20 seg) y el modal no se quita, recargar la pagina mandar un mensaje 401 y return
-                // no se donde ocurre ese error, si antes o despues de la confirmacion
-                //await mainWindow.webContents.executeJavaScript(`location.reload();`);
+                // no se donde ocurre ese error, si antes o despues de la confirmacion, tambien podriamos cachar el texto del modal y evitar la espera
+                //await mainWindow.webContents.executeJavaScript(`location.reload();`);  // recargar la pagina
 
                 // Esperar a que la posición se cierre
                 while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
