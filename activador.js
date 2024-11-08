@@ -98,6 +98,7 @@ async function ejecutarSQL(sql) {
                     }
                 }
 
+                // Calcular clima actual
                 const promedioCripto = sumaPendientesCripto / totalColumnasCripto;
                 const promedioSP = PendienteSP500;
                 const promedioEner = sumaPendientesEner / totalColumnasEner;
@@ -108,13 +109,12 @@ async function ejecutarSQL(sql) {
                 const mclimaComm = obtenerMclima(promedioComm);
                 climaActual = mclimaCripto +  mclimaComm + mclimaEner + mclimaSP ;
 
-                console.log('Clima actual:', climaActual, 'Pendiente:', pendientes[13], "precio:", primeraFila[columnas[13]]);
-
                 // Iterar sobre estrategias activas y procesar apertura y cierre
                 for (let i = 0; i < soluciones.length; i++) {
                     const indice = soluciones[i].activo;
                     let precioActivo = primeraFila[columnas[indice]];
                     let rangoMinimo, rangoMaximo;
+                    const operacion = soluciones[i].operacion;
 
                     // Cierre de estrategias
                     if (!estrategiasActivas[i]) {
@@ -122,7 +122,11 @@ async function ejecutarSQL(sql) {
                         const stop_loss = pool_stop_loss[i];
                         const take_profit = pool_take_profit[i];
 
-                        if (pool_caducidad[i] === 0 || precioActivo <= stop_loss || precioActivo >= take_profit) {
+                        const condicionCaducidad = (pool_caducidad[i] === 0);
+                        const condicionCompra = (precioActivo <= stop_loss || precioActivo >= take_profit) && operacion === 'comprar';
+                        const condicionVenta = (precioActivo >= stop_loss || precioActivo <= take_profit) && operacion === 'vender';
+
+                        if (condicionCaducidad || condicionCompra || condicionVenta) {
                             mensaje = {
                                 "id": soluciones[i].id,
                                 "accion": "cerrar",
@@ -130,6 +134,7 @@ async function ejecutarSQL(sql) {
                             };
                             if (isWsOpen) {
                                 await enviarMensajeWs(mensaje, i);
+                                console.log('Mensaje enviado:', mensaje);
                                 break;
                             }
                         }
@@ -150,9 +155,15 @@ async function ejecutarSQL(sql) {
                             const precioActivoNum = parseFloat(precioActivo);
                             const stopLossNum = parseFloat(soluciones[i].stop_loss);
                             const takeProfitNum = parseFloat(soluciones[i].take_profit);
-
-                            pool_stop_loss[i] = precioActivoNum - (precioActivoNum * (stopLossNum / 100));
-                            pool_take_profit[i] = precioActivoNum + (precioActivoNum * (takeProfitNum / 100));
+                            
+                            if (operacion === 'comprar') {
+                                pool_stop_loss[i] = precioActivoNum - (precioActivoNum * (stopLossNum / 100));
+                                pool_take_profit[i] = precioActivoNum + (precioActivoNum * (takeProfitNum / 100));
+                            } else if (operacion === 'vender') {
+                                pool_stop_loss[i] = precioActivoNum + (precioActivoNum * (stopLossNum / 100));
+                                pool_take_profit[i] = precioActivoNum - (precioActivoNum * (takeProfitNum / 100));
+                            }
+                            
                             pool_caducidad[i] = soluciones[i].caducidad;
                             mensaje = {
                                 "id": soluciones[i].id,
@@ -165,6 +176,7 @@ async function ejecutarSQL(sql) {
                             if (isWsOpen) {
                                 ws.send(JSON.stringify(mensaje));
                                 bloqueado = false;
+                                console.log('Mensaje enviado:', mensaje);
                                 break;
                             }
                         }
