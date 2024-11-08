@@ -212,6 +212,9 @@ async function enviarMensajeWs(mensaje, indice) {
                 pool_stop_loss[indice] = 0;
                 pool_take_profit[indice] = 0;
                 resolve();
+            } else if (respuesta.status === 401) {
+                console.log('Error al cerrar la posición, intentando nuevamente...');
+                resolve();
             }
         });
     });
