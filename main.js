@@ -165,12 +165,18 @@ if (mode !== 1) {
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
                 }
                 
-                // si ya paso cierto tiempo (20 seg) y el modal no se quita, recargar la pagina mandar un mensaje 401 y return
-                // no se donde ocurre ese error, si antes o despues de la confirmacion, tambien podriamos cachar el texto del modal y evitar la espera
-                //await mainWindow.webContents.executeJavaScript(`location.reload();`);  // recargar la pagina
-
                 // Esperar a que la posición se cierre
+                let startTime = Date.now();
+                const max_time = 20000;
                 while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
+                    // Si el modal no cierra recargar la página y enviar un mensaje 401
+                    if (Date.now() - startTime > max_time) {
+                        await mainWindow.webContents.executeJavaScript(`location.reload();`); 
+                        ws.send(JSON.stringify({
+                            status: 401,
+                        }));
+                        return; 
+                    }
                     await new Promise(resolve => setTimeout(resolve, 100));  
                 }
                 console.log('posicion cerrada...');
