@@ -164,6 +164,11 @@ if (mode !== 1) {
                 } else {
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="close_by_cross_modal_modal_confirm_button"]').click();`);
                 }
+                
+                // si ya paso cierto tiempo (20 seg) y el modal no se quita, recargar la pagina mandar un mensaje 401 y return
+                // no se donde ocurre ese error, si antes o despues de la confirmacion
+                //await mainWindow.webContents.executeJavaScript(`location.reload();`);
+
                 // Esperar a que la posición se cierre
                 while (await mainWindow.webContents.executeJavaScript(`document.evaluate('//*[@id="root"]/div/div[1]/div', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue !== null`)) {
                     await new Promise(resolve => setTimeout(resolve, 100));  
