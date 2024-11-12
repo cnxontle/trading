@@ -134,7 +134,7 @@ async function ejecutarSQL(sql) {
                             };
                             if (isWsOpen) {
                                 await enviarMensajeWs(mensaje, i);
-                                console.log('Mensaje enviado:', mensaje);
+                                console.log('Mensaje enviado:', mensaje, 'Stop Loss:', stop_loss, 'Take Profit:', take_profit, 'Condiciones:', condicionCaducidad, condicionCompra, condicionVenta);
                                 break;
                             }
                         }
