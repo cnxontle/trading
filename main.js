@@ -8,6 +8,8 @@ require('dotenv').config();
 const args = process.argv.slice(2);
 const mode = args.includes('r') ? 1 : 2;
 let mainWindow;
+const apalancamiento = process.env.APALANCAMIENTO;
+const soluciones = process.env.SOLUCIONES;
 
 //Crear una ventana de navegador Electron 
 function createWindow() {
@@ -82,6 +84,7 @@ if (mode !== 1) {
         let stop_loss = parseFloat(data.stop_loss);
         stop_loss += (operacion === 'comprar' ? -1 : 1) * stop_loss * 0.002;
         let take_profit = parseFloat(data.take_profit);  
+        take_profit += (operacion === 'comprar' ? 1 : -1) * take_profit * 0.002;
         const boton_id = {comprar: 'buy',vender: 'sell'}[operacion];
 
         // Código para intentar abrir una nueva posición..
@@ -98,7 +101,7 @@ if (mode !== 1) {
                         return numericValue;
                     })();
                 `);
-                numericValue = 10;  // SOLO PARA PRUEBAS (QUITAR ESTA LINEA CUANDO SE TERMINE DE PROBAR)
+                numericValue *= (apalancamiento/soluciones); 
                 if (numericValue >= 10) {
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                     
@@ -140,7 +143,7 @@ if (mode !== 1) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
-                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000));   // definir tiempo de espera
                                       
                     // Definir Orden Stop Loss
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').click();`);
@@ -156,7 +159,7 @@ if (mode !== 1) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
-                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000));   // definir tiempo de espera
                     
                     ws.send(JSON.stringify({
                         status: 300,
