@@ -175,8 +175,8 @@ if (mode !== 1) {
                     }
                     //click en el boton de confirmar
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
-                    // esperar a que aparesca el span de stop loss para hacer click
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_loss"]').textContent === ''`)) {
+                    // esperar a que el span de stop loss este disponible para hacer clich
+                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_loss"]').disabled`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
 
