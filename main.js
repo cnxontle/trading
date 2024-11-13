@@ -150,7 +150,7 @@ if (mode !== 1) {
                     //click en el boton de confirmar
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
                     
-                    await new Promise(resolve => setTimeout(resolve, 200));
+                    await new Promise(resolve => setTimeout(resolve, 3000));
                                       
                     //click en el span de stop loss
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').click();`);
