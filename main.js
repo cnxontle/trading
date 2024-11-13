@@ -154,6 +154,7 @@ if (mode !== 1) {
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').textContent === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
+                    await new Promise(resolve => setTimeout(resolve, 100));
                     //click en el span de stop loss
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').click();`);
                     //focus en el input de stop loss
