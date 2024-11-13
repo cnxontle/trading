@@ -152,17 +152,8 @@ async function ejecutarSQL(sql) {
                             rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo) {
                             
                             estrategiasActivas[i] = false;
-                            const precioActivoNum = parseFloat(precioActivo);
                             const stopLossNum = parseFloat(soluciones[i].stop_loss);
                             const takeProfitNum = parseFloat(soluciones[i].take_profit);
-                            
-                            if (operacion === 'comprar') {
-                                pool_stop_loss[i] = precioActivoNum - (precioActivoNum * (stopLossNum / 100));
-                                pool_take_profit[i] = precioActivoNum + (precioActivoNum * (takeProfitNum / 100));
-                            } else if (operacion === 'vender') {
-                                pool_stop_loss[i] = precioActivoNum + (precioActivoNum * (stopLossNum / 100));
-                                pool_take_profit[i] = precioActivoNum - (precioActivoNum * (takeProfitNum / 100));
-                            }
                             
                             pool_caducidad[i] = soluciones[i].caducidad;
                             mensaje = {
@@ -175,7 +166,7 @@ async function ejecutarSQL(sql) {
                             if (isWsOpen) {
                                 await enviarMensajeWs(mensaje, i);
                                 bloqueado = false;
-                                console.log('Mensaje enviado:', mensaje);
+                                console.log('Mensaje enviado:', mensaje, 'Stop Loss:', pool_stop_loss[i], 'Take Profit:', pool_take_profit[i]);
                                 break;
                             }
                         }
@@ -215,6 +206,8 @@ async function enviarMensajeWs(mensaje, indice) {
                 console.log('Error al cerrar la posición, intentando nuevamente...');
                 resolve();
             } else if (respuesta.status === 300) {
+                pool_stop_loss[indice] = respuesta.stop_loss;
+                pool_take_profit[indice] = respuesta.take_profit;
                 resolve();
             }
         });
