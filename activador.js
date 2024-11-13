@@ -55,7 +55,7 @@ async function leerConsultaSQL() {
 // Función para ejecutar la consulta SQL y enviar mensajes al WebSocket
 async function ejecutarSQL(sql) {
     if (bloqueado) {
-        console.log('SQL está en ejecución, omitiendo nueva ejecución');
+        console.log('Esperando...');
         return;
     }
     bloqueado = true;
@@ -174,7 +174,7 @@ async function ejecutarSQL(sql) {
                                 "precio": precioActivo
                             };
                             if (isWsOpen) {
-                                ws.send(JSON.stringify(mensaje));
+                                await enviarMensajeWs(mensaje, i);
                                 bloqueado = false;
                                 console.log('Mensaje enviado:', mensaje);
                                 break;
@@ -214,6 +214,8 @@ async function enviarMensajeWs(mensaje, indice) {
                 resolve();
             } else if (respuesta.status === 401) {
                 console.log('Error al cerrar la posición, intentando nuevamente...');
+                resolve();
+            } else if (respuesta.status === 300) {
                 resolve();
             }
         });

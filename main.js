@@ -120,9 +120,22 @@ if (mode !== 1) {
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') !== null`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
+                    //intentar programar una salida de emergencia
+
+
+
+
+
+                    ws.send(JSON.stringify({
+                        status: 300,
+                    }));
                     console.log('posicion abierta...');
                 }
-            }catch (error) { console.error('error en apertura...'); }     
+            }catch (error) { 
+                ws.send(JSON.stringify({
+                    status: 300,
+                }));
+                console.error('error en apertura...'); }     
 
             // Código para intentar cerrar una posición
         } else if (data.accion === 'cerrar') {      
