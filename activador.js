@@ -152,21 +152,31 @@ async function ejecutarSQL(sql) {
                             rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo) {
                             
                             estrategiasActivas[i] = false;
+                            const precioActivoNum = parseFloat(precioActivo);
                             const stopLossNum = parseFloat(soluciones[i].stop_loss);
                             const takeProfitNum = parseFloat(soluciones[i].take_profit);
+                            
+                            if (operacion === 'comprar') {
+                                pool_stop_loss[i] = precioActivoNum - (precioActivoNum * (stopLossNum / 100));
+                                pool_take_profit[i] = precioActivoNum + (precioActivoNum * (takeProfitNum / 100));
+                            } else if (operacion === 'vender') {
+                                pool_stop_loss[i] = precioActivoNum + (precioActivoNum * (stopLossNum / 100));
+                                pool_take_profit[i] = precioActivoNum - (precioActivoNum * (takeProfitNum / 100));
+                            }
                             
                             pool_caducidad[i] = soluciones[i].caducidad;
                             mensaje = {
                                 "id": soluciones[i].id,
                                 "accion": "abrir",
                                 "operacion": soluciones[i].operacion,
-                                "stop_loss": stopLossNum,
-                                "take_profit": takeProfitNum,
+                                "stop_loss": pool_stop_loss[i],
+                                "take_profit": pool_take_profit[i],
+                                "precio": precioActivo
                             };
                             if (isWsOpen) {
                                 await enviarMensajeWs(mensaje, i);
                                 bloqueado = false;
-                                console.log('Mensaje enviado:', mensaje, 'Stop Loss:', pool_stop_loss[i], 'Take Profit:', pool_take_profit[i]);
+                                console.log('Mensaje enviado:', mensaje);
                                 break;
                             }
                         }
@@ -206,8 +216,6 @@ async function enviarMensajeWs(mensaje, indice) {
                 console.log('Error al cerrar la posición, intentando nuevamente...');
                 resolve();
             } else if (respuesta.status === 300) {
-                pool_stop_loss[indice] = respuesta.stop_loss;
-                pool_take_profit[indice] = respuesta.take_profit;
                 resolve();
             }
         });
