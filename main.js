@@ -124,6 +124,10 @@ if (mode !== 1) {
                     }
                     console.log('posicion abierta...');
 
+                    // Esperar a que aparezca el span de detalles de la posición abierta
+                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="details_open_price"]').textContent === ''`)) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
                     // capturar el valor de la posición abierta
                     let valor_abierto = await mainWindow.webContents.executeJavaScript(`
                         (() => {
@@ -140,14 +144,18 @@ if (mode !== 1) {
                         valor_abierto = parseFloat(valor_abierto);
                         stop_loss = parseFloat(stop_loss);
                         take_profit = parseFloat(take_profit);
-                        let sl, tp;
+                        let sl, tp, sl_real, tp_real;
 
                         //calcular el valor de take profit y stop loss
                         if (operacion === 'comprar') {
+                            sl_real = valor_abierto - (valor_abierto * (stop_loss / 100));
+                            tp_real = valor_abierto + (valor_abierto * (take_profit / 100));
                             sl = valor_abierto - (valor_abierto * ((stop_loss - 0.2) / 100));
                             tp = valor_abierto + (valor_abierto * ((take_profit + 0.2) / 100));
                         }
                         if (operacion === 'vender') {
+                            sl_real = valor_abierto + (valor_abierto * (stop_loss / 100));
+                            tp_real = valor_abierto - (valor_abierto * (take_profit / 100));
                             sl = valor_abierto - (valor_abierto * ((stop_loss + 0.2)/ 100));
                             tp = valor_abierto + (valor_abierto * ((take_profit -0.2) / 100));
                         }
@@ -203,13 +211,12 @@ if (mode !== 1) {
                         while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_loss"]').textContent === ''`)) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                         }
-
-
                     }
 
-
                     ws.send(JSON.stringify({
-                        status: 300,  // no importa si abrio  o no la posicion, la respuesta es 300
+                        status: 300,
+                        stop_loss: sl_real,
+                        take_profit: tp_real,
                     }));
                     
                 }
@@ -217,6 +224,8 @@ if (mode !== 1) {
                 
                 ws.send(JSON.stringify({
                     status: 300,    // no importa si abrio  o no la posicion, la respuesta es 300
+                    stop_loss: null,
+                    take_profit: null,
                 }));
                 console.error('error en apertura...'); }     
 
