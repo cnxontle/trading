@@ -137,7 +137,12 @@ if (mode !== 1) {
                     //focus en el imput precio
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
                     //ingresar el valor de take profit
-                    await sendKeys(take_profit.toString());
+
+                    if ((take_profit && take_profit.toString().split('.')[1] || '').length > 11) {
+                        take_profit = take_profit.toFixed(11);
+                    }
+                    console.log('take_profit', take_profit);
+                    await sendKeys(take_profit);
                     // Esperar a que se actualice el valor de input para stop loss
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
@@ -162,7 +167,13 @@ if (mode !== 1) {
                     //focus en el imput precio
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
                     //ingresar el valor de stop loss
-                    await sendKeys(stop_loss.toString());
+                    // Convertir el número a una cadena
+                    if ((stop_loss.toString().split('.')[1] || '').length > 11) {
+                        stop_loss = stop_loss.toFixed(11);
+                    }
+
+                    // Redondea a 7 decimales y lo convierte en cadena
+                    await sendKeys(stop_loss);
                     // Esperar a que se actualice el valor de input para stop loss
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
