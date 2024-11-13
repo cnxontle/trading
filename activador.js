@@ -169,9 +169,8 @@ async function ejecutarSQL(sql) {
                                 "id": soluciones[i].id,
                                 "accion": "abrir",
                                 "operacion": soluciones[i].operacion,
-                                "stop_loss": pool_stop_loss[i],
-                                "take_profit": pool_take_profit[i],
-                                "precio": precioActivo
+                                "stop_loss": stopLossNum,
+                                "take_profit": takeProfitNum,
                             };
                             if (isWsOpen) {
                                 await enviarMensajeWs(mensaje, i);

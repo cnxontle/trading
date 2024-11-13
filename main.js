@@ -84,7 +84,9 @@ if (mode !== 1) {
         // Código para intentar abrir una nueva posición..
         if (data.accion === 'abrir') {
             console.log(`Intentando abrir una posicion en ${activo} de ${operacion}`);
-            
+            const take_profit = data.take_profit;
+            const stop_loss = data.stop_loss;
+
             try{
                 // Verificar la cantidad disponible en la cartera
                 numericValue = await mainWindow.webContents.executeJavaScript(`
@@ -120,24 +122,105 @@ if (mode !== 1) {
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') !== null`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
-                    //intentar programar una salida de emergencia
+                    console.log('posicion abierta...');
+
+                    // capturar el valor de la posición abierta
+                    let valor_abierto = await mainWindow.webContents.executeJavaScript(`
+                        (() => {
+                                const span = document.querySelector('span[id="details_open_price"]');
+                                if (span) {
+                                    const rawValue = span.textContent.trim();
+                                    const numericValue = rawValue.replace(/[^0-9.]/g, '');
+                                    return numericValue;
+                                }
+                                return null;
+                        `);         
+                    
+                    if (valor_abierto) {
+                        valor_abierto = parseFloat(valor_abierto);
+                        stop_loss = parseFloat(stop_loss);
+                        take_profit = parseFloat(take_profit);
+                        let sl, tp;
+
+                        //calcular el valor de take profit y stop loss
+                        if (operacion === 'comprar') {
+                            sl = valor_abierto - (valor_abierto * ((stop_loss - 0.2) / 100));
+                            tp = valor_abierto + (valor_abierto * ((take_profit + 0.2) / 100));
+                        }
+                        if (operacion === 'vender') {
+                            sl = valor_abierto - (valor_abierto * ((stop_loss + 0.2)/ 100));
+                            tp = valor_abierto + (valor_abierto * ((take_profit -0.2) / 100));
+                        }
+                        console.log(`sl: ${sl} tp: ${tp}`);
+
+                        // Click en el botón de targer order
+                        await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="target_order"]').click();`);
+                        //focus en el input de take profit
+                        await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').focus();`);
+                        //ingresar el valor de la posición
+                        await sendKeys(numericValue.toString().split('.')[0]);
+                        // Esperar a que se actualice el valor de input para take profit
+                        while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').value === ''`)) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                        //focus en el imput precio
+                        await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
+                        //ingresar el valor de take profit
+                        await sendKeys(tp.toString());
+                        // Esperar a que se actualice el valor de input para stop loss
+                        while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                        //click en el boton de confirmar
+                        await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_confirm_button"]').click();`);
+                        
+
+                        // esperar a que aparesca el span de stop loss para hacer click
+                        while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').textContent === ''`)) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                        //click en el span de stop loss
+                        await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').click();`);
+                        //focus en el input de stop loss
+                        await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').focus();`);
+                        //ingresar el valor de la posición
+                        await sendKeys(numericValue.toString().split('.')[0]);
+                        // Esperar a que se actualice el valor de input para stop loss
+                        while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').value === ''`)) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                        //focus en el imput precio
+                        await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
+                        //ingresar el valor de stop loss
+                        await sendKeys(sl.toString());
+                        // Esperar a que se actualice el valor de input para stop loss
+                        while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                        //click en el boton de confirmar
+                        await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_confirm_button"]').click();`);
+                        // esperar a que aparesca el span de stop loss para hacer click
+                        while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_loss"]').textContent === ''`)) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
 
 
-
+                    }
 
 
                     ws.send(JSON.stringify({
-                        status: 300,
+                        status: 300,  // no importa si abrio  o no la posicion, la respuesta es 300
                     }));
-                    console.log('posicion abierta...');
+                    
                 }
             }catch (error) { 
+                
                 ws.send(JSON.stringify({
-                    status: 300,
+                    status: 300,    // no importa si abrio  o no la posicion, la respuesta es 300
                 }));
                 console.error('error en apertura...'); }     
 
-            // Código para intentar cerrar una posición
+        // Código para intentar cerrar una posición
         } else if (data.accion === 'cerrar') {      
             console.log(`Intentando cerrar una posicion en ${activo}`);
             let mercado_cerrado = false;
