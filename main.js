@@ -131,7 +131,7 @@ if (mode !== 1) {
                     // capturar el valor de la posición abierta
                     let valor_abierto = await mainWindow.webContents.executeJavaScript(`
                         (() => {
-                                const span = document.querySelector('span[id="details_open_price"]');
+                                const span = document.querySelectorAll('span[id="details_open_price"]')[0];
                                 if (span) {
                                     const rawValue = span.textContent.trim();
                                     const numericValue = rawValue.replace(/[^0-9.]/g, '');
@@ -140,6 +140,7 @@ if (mode !== 1) {
                                 return null;
                         `);         
                     
+                    console.log(`valor abierto: ${valor_abierto}`);
                     if (valor_abierto) {
                         valor_abierto = parseFloat(valor_abierto);
                         stop_loss = parseFloat(stop_loss);
