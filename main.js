@@ -142,11 +142,9 @@ if (mode !== 1) {
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
-                    console.log('take profit ingresado...');
                     //click en el boton de confirmar
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_confirm_button"]').click();`);
+                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
                     
-
                     // esperar a que aparesca el span de stop loss para hacer click
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').textContent === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
@@ -170,7 +168,7 @@ if (mode !== 1) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
                     //click en el boton de confirmar
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_confirm_button"]').click();`);
+                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
                     // esperar a que aparesca el span de stop loss para hacer click
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_loss"]').textContent === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
