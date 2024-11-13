@@ -142,6 +142,7 @@ if (mode !== 1) {
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
+                    console.log('take profit ingresado...');
                     //click en el boton de confirmar
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_confirm_button"]').click();`);
                     
