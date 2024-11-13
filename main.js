@@ -124,66 +124,44 @@ if (mode !== 1) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
 
-                    // Click en el botón de targer order
+                    console.log('posicion abierta...');
+
+                    // Definir Orden Take Profit
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="target_order"]').click();`);
-                    //focus en el input de take profit
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').focus();`);
-                    //ingresar el valor de la posición
                     await sendKeys(numericValue.toString().split('.')[0]);
-                    // Esperar a que se actualice el valor de input para take profit
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').value === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
-                    //focus en el imput precio
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
-
-                    // espera 50 milisegundos para que se actualice el input
                     await new Promise(resolve => setTimeout(resolve, 100));
-                    //ingresar el valor de take profit
-
-                 
                     await sendKeys(take_profit.toString());
-                    // Esperar a que se actualice el valor de input para stop loss
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
-                    //click en el boton de confirmar
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
-                    
                     await new Promise(resolve => setTimeout(resolve, 3000));
                                       
-                    //click en el span de stop loss
+                    // Definir Orden Stop Loss
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').click();`);
-                    //focus en el input de stop loss
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').focus();`);
-                    //ingresar el valor de la posición
                     await sendKeys(numericValue.toString().split('.')[0]);
-                    // Esperar a que se actualice el valor de input para stop loss
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').value === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
-                    //focus en el imput precio
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
-                    //ingresar el valor de stop loss
-                    // Convertir el número a una cadena
                     await new Promise(resolve => setTimeout(resolve, 100));
-                    // Redondea a 7 decimales y lo convierte en cadena
                     await sendKeys(stop_loss.toString());
-                    // Esperar a que se actualice el valor de input para stop loss
                     while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                     }
-                    //click en el boton de confirmar
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
-                    // esperar a que el span de stop loss este disponible para hacer clich
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_loss"]').disabled`)) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    
                     ws.send(JSON.stringify({
                         status: 300,
                     }));
-                    console.log('posicion abierta...');
+                    
                 }
             }catch (error) { 
                 ws.send(JSON.stringify({
