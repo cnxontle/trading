@@ -145,7 +145,7 @@ if (mode !== 1) {
                 while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
-                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
+                await withTimeout(mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`));
                 await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000));   // definir tiempo de espera
                                     
                 // Definir Orden Stop Loss
@@ -161,7 +161,7 @@ if (mode !== 1) {
                 while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
-                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
+                await withTimeout(mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`));
                 await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000));   // definir tiempo de espera
                 
                 ws.send(JSON.stringify({status: 300}));
