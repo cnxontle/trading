@@ -8,8 +8,8 @@ require('dotenv').config();
 const args = process.argv.slice(2);
 const mode = args.includes('r') ? 1 : 2;
 let mainWindow;
-const apalancamiento = process.env.APALANCAMIENTO;
-const soluciones = process.env.SOLUCIONES;
+const apalancamiento = parseFloat(process.env.APALANCAMIENTO);
+const soluciones = parseFloat(process.env.SOLUCIONES);
 
 //Crear una ventana de navegador Electron 
 function createWindow() {
@@ -101,10 +101,10 @@ if (mode !== 1) {
                         return numericValue;
                     })();
                 `);
-                console.log('numericValue:', numericValue);
+
                 numericValue = parseFloat(numericValue);
                 numericValue *= (apalancamiento/soluciones); 
-                console.log('numericValue:', numericValue);
+                console.log('numericValue:', numericValue, 'apalancamiento:', apalancamiento, 'soluciones:', soluciones);
                 if (numericValue >= 10) {
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                     
