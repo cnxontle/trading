@@ -101,7 +101,10 @@ if (mode !== 1) {
                         return numericValue;
                     })();
                 `);
+                console.log('numericValue:', numericValue);
+                numericValue = parseFloat(numericValue);
                 numericValue *= (apalancamiento/soluciones); 
+                console.log('numericValue:', numericValue);
                 if (numericValue >= 10) {
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                     
