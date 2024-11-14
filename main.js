@@ -99,77 +99,73 @@ if (mode !== 1) {
             try{
                 // Verificar la cantidad disponible en la cartera
                 numericValue = await mainWindow.webContents.executeJavaScript(`
-                    (() => {
-                        const span = document.querySelector('span[data-testid="default_margin_ballance"]');
-                        const rawValue = span ? span.textContent.trim() : '';
-                        const numericValue = rawValue.replace(/[^0-9.]/g, '');
-                        return numericValue;
+                    (function() {
+                        const rawValue = document.querySelector('span[data-testid="default_margin_ballance"]')?.textContent.trim() || '';
+                        return parseFloat(rawValue.replace(/[^0-9.]/g, '')) || 0;
                     })();
                 `);
-
-                numericValue = parseFloat(numericValue);
-                numericValue *= (apalancamiento/soluciones); 
-                if (numericValue >= 10) {
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
-                    
-                    // Esperar a que se cargue la pestaña de watchlist
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') === null`)) {
-                        await new Promise(resolve => setTimeout(resolve, 100));  
-                    }
-
-                    // Abrir la ventana de información del activo e ingresar monto
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_${activo}"]').click();`);
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
-                    await sendKeys(numericValue.toString());
-
-                    // Esperar a que se actualice el valor de input para abrir la posición
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').value === ''`)) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`);
-                    
-                    // Esperar a que se termine de abrir la posicion
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') !== null`)) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-
-                    console.log('posicion abierta...');
-
-                    // Definir Orden Take Profit
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="target_order"]').click();`);
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').focus();`);
-                    await sendKeys(numericValue.toString());
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').value === ''`)) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    await sendKeys(take_profit.toString());
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
-                    await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000));   // definir tiempo de espera
-                                      
-                    // Definir Orden Stop Loss
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').click();`);
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').focus();`);
-                    await sendKeys(numericValue.toString());
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').value === ''`)) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    await sendKeys(stop_loss.toString());
-                    while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-                    await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
-                    await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000));   // definir tiempo de espera
-                    
-                    ws.send(JSON.stringify({status: 300}));
+                numericValue = Math.min(10, (numericValue * apalancamiento / soluciones));
+                
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
+                
+                // Esperar a que se cargue la pestaña de watchlist
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') === null`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));  
                 }
+
+                // Abrir la ventana de información del activo e ingresar monto
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_${activo}"]').click();`);
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="${boton_id}"]').click();`)
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').focus();`);
+                await sendKeys(numericValue.toString());
+
+                // Esperar a que se actualice el valor de input para abrir la posición
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').value === ''`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                await withTimeout(mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`));
+                
+                // Esperar a que se termine de abrir la posicion
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') !== null`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                console.log('posicion abierta...');
+
+                // Definir Orden Take Profit
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="target_order"]').click();`);
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').focus();`);
+                await sendKeys(numericValue.toString());
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').value === ''`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
+                await new Promise(resolve => setTimeout(resolve, 100));
+                await sendKeys(take_profit.toString());
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
+                await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000));   // definir tiempo de espera
+                                    
+                // Definir Orden Stop Loss
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('span[id="stop_order"]').click();`);
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').focus();`);
+                await sendKeys(numericValue.toString());
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_size_number_input"]').value === ''`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').focus();`);
+                await new Promise(resolve => setTimeout(resolve, 100));
+                await sendKeys(stop_loss.toString());
+                while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="reduce_order_price_number_input"]').value === ''`)) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="reduce_order_submit_button"]').click();`);
+                await new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2000));   // definir tiempo de espera
+                
+                ws.send(JSON.stringify({status: 300}));
+
             }catch (error) { 
                 ws.send(JSON.stringify({status: 300}));
                 console.error('error en apertura...'); }     
