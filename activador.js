@@ -205,7 +205,7 @@ async function enviarMensajeWs(mensaje, indice) {
             const respuesta = JSON.parse(message);
             if (respuesta.status === 400) {
                 console.log('Error al cerrar la posición');
-                pool_caducidad[indice] = respuesta.segundos_restantes;
+                pool_caducidad[indice] = parseInt(respuesta.segundos_restantes, 10);
                 resolve();
             } else if (respuesta.status === 200) {
                 estrategiasActivas[indice] = true;
