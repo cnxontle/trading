@@ -104,7 +104,6 @@ if (mode !== 1) {
 
                 numericValue = parseFloat(numericValue);
                 numericValue *= (apalancamiento/soluciones); 
-                console.log('numericValue:', numericValue, 'apalancamiento:', apalancamiento, 'soluciones:', soluciones);
                 if (numericValue >= 10) {
                     await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                     
