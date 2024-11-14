@@ -76,8 +76,7 @@ if (mode !== 1) {
         });
 
     // Función para manejar los mensajes
-    const TIMEOUT_GENERAL = 10000;
-    const TIMEOUT_POSITION_CLOSE = 20000;
+    const TIMEOUT = 10000;
     const POLLING_INTERVAL = 100;
 
     // Manejar mensajes recibidos
@@ -109,9 +108,9 @@ if (mode !== 1) {
             console.log('Balance insuficiente');
             return;
         }
-        await withTimeout(openPosition(balance, activo, boton_id), TIMEOUT_GENERAL);
-        await withTimeout(defineOrder('takeProfit', balance, take_profit), TIMEOUT_GENERAL / 2);
-        await withTimeout(defineOrder('stopLoss', balance, stop_loss), TIMEOUT_GENERAL / 2);
+        await withTimeout(openPosition(balance, activo, boton_id), TIMEOUT);
+        await withTimeout(defineOrder('takeProfit', balance, take_profit), TIMEOUT / 2);
+        await withTimeout(defineOrder('stopLoss', balance, stop_loss), TIMEOUT / 2);
         ws.send(JSON.stringify({ status: 300 }));
     }
 
@@ -133,7 +132,7 @@ if (mode !== 1) {
         await waitForSelectorAndExecute(`//*[@id="root"]/div/div[1]/div`, async () => {
             await mainWindow.webContents.executeJavaScript(`location.reload();`);
             ws.send(JSON.stringify({ status: 401 }));
-        }, TIMEOUT_POSITION_CLOSE);
+        }, TIMEOUT);
 
         ws.send(JSON.stringify({ status: 200 }));
     }
