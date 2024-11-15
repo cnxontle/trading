@@ -104,7 +104,7 @@ if (mode !== 1) {
                         return parseFloat(rawValue.replace(/[^0-9.]/g, '')) || 0;
                     })();
                 `);
-                numericValue = Math.min(10, (numericValue * apalancamiento / soluciones));
+                numericValue = Math.max(10, (numericValue * apalancamiento / soluciones));
                 
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                 
