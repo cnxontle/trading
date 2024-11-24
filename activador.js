@@ -217,6 +217,9 @@ async function enviarMensajeWs(mensaje, indice) {
                 resolve();
             } else if (respuesta.status === 300) {
                 resolve();
+            } else if (respuesta.status === 301) {
+                estrategiasActivas[indice] = true;
+                resolve();
             }
         });
     });
