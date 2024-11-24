@@ -123,7 +123,14 @@ if (mode !== 1) {
                 while (await mainWindow.webContents.executeJavaScript(`document.querySelector('input[id="open_value_number_input"]').value === ''`)) {
                     await new Promise(resolve => setTimeout(resolve, 100));
                 }
-                await withTimeout(mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`));
+                try{
+                    await withTimeout(mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`));
+                } catch (error) { 
+                ws.send(JSON.stringify({status: 301}));
+                await mainWindow.webContents.executeJavaScript(`location.reload();`);
+                return;
+                }   
+
                 
                 // Esperar a que se termine de abrir la posicion
                 while (await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="instrument_info_WHR"]') !== null`)) {
