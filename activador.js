@@ -84,12 +84,12 @@ async function ejecutarSQL(sql) {
                     const valorSegundaFila = segundaFila[columnas[i]];
                     const pendiente = ((valorPrimeraFila - valorSegundaFila) / valorSegundaFila) * 100;
                     pendientes.push(pendiente);
-                    if (i <= 32) {
+                    if (i === 9) {
                         sumaPendientesCripto += pendiente;
                         totalColumnasCripto++;
                     } else if (i === 74) {
                         PendienteSP500 = pendiente;
-                    } else if (62 <= i && i <= 66) {
+                    } else if (i === 63) {
                         sumaPendientesEner += pendiente;
                         totalColumnasEner++;
                     } else if (57 <= i && i <= 61) {
