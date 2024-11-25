@@ -126,8 +126,8 @@ if (mode !== 1) {
                 try{
                     await withTimeout(mainWindow.webContents.executeJavaScript(`document.querySelector('button[id="open_position"]').click();`));
                 } catch (error) { 
-                ws.send(JSON.stringify({status: 301}));
                 await mainWindow.webContents.executeJavaScript(`location.reload();`);
+                ws.send(JSON.stringify({status: 301}));
                 return;
                 }   
 
