@@ -62,9 +62,10 @@ async function ejecutarSQL(sql) {
     if (soluciones) {
         try {
             const results = await pool.query(sql);
-            if (results && results.rows.length === 2) {  // Se esperan 2 filas
+            if (results && results.rows.length === 3) {  // Se esperan 2 filas
                 const primeraFila = results.rows[0];
                 const segundaFila = results.rows[1];
+                const terceraFila = results.rows[2];
                 const id = primeraFila.id;
                 const tiempo = primeraFila.tiempo;
                 const columnas = Object.keys(primeraFila);
@@ -76,14 +77,19 @@ async function ejecutarSQL(sql) {
                 let climaActual;
                 let mensaje;
                 let pendientes = [];
+                let tendencias = [];
                 pendientes.push(id, tiempo);
+                tendencias.push(id, tiempo);
 
                 // Iterar sobre todas las columnas
                 for (let i = 2; i < columnas.length; i++) {
                     const valorPrimeraFila = primeraFila[columnas[i]];
                     const valorSegundaFila = segundaFila[columnas[i]];
+                    const valorTerceraFila = terceraFila[columnas[i]];
                     const pendiente = ((valorPrimeraFila - valorSegundaFila) / valorSegundaFila) * 100;
+                    const tendencia = ((valorPrimeraFila - valorTerceraFila) / valorTerceraFila) * 100;
                     pendientes.push(pendiente);
+                    tendencias.push(tendencia);
                     if (2 <= i && i <= 32) {
                         sumaPendientesCripto += pendiente;
                         totalColumnasCripto++;
@@ -148,6 +154,9 @@ async function ejecutarSQL(sql) {
                             rangoMaximo = soluciones[i].pendiente;
                             rangoMinimo = soluciones[i].pendiente - soluciones[i].rango_pendiente;
                         }
+                        // evaluar tendencia para abrir
+
+
                         if (climaActual === soluciones[i].clima &&
                             rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo) {
                             
