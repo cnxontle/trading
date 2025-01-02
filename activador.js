@@ -62,7 +62,7 @@ async function ejecutarSQL(sql) {
     if (soluciones) {
         try {
             const results = await pool.query(sql);
-            if (results && results.rows.length === 3) {  // Se esperan 2 filas
+            if (results && results.rows.length === 3) {  // Se esperan 3 filas
                 const primeraFila = results.rows[0];
                 const segundaFila = results.rows[1];
                 const terceraFila = results.rows[2];
@@ -194,7 +194,7 @@ async function ejecutarSQL(sql) {
                     }
                 }
             } else {
-                console.log("Se esperaban exactamente 2 filas, pero se obtuvieron:", results.rows.length);
+                console.log("Se esperaban exactamente 3 filas, pero se obtuvieron:", results.rows.length);
                 bloqueado = false;
             }
         } catch (error) {
