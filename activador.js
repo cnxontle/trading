@@ -155,10 +155,12 @@ async function ejecutarSQL(sql) {
                             rangoMinimo = soluciones[i].pendiente - soluciones[i].rango_pendiente;
                         }
                         // evaluar tendencia para abrir
-
+                        let inicio_tendencia = soluciones[i].inicio_tendencia;
+                        let fin_tendencia = inicio_tendencia + soluciones[i].fin_tendencia;
 
                         if (climaActual === soluciones[i].clima &&
-                            rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo) {
+                            rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo
+                            && tendencias[indice] >= inicio_tendencia && tendencias[indice] <= fin_tendencia) {
                             
                             estrategiasActivas[i] = false;
                             const precioActivoNum = parseFloat(precioActivo);
