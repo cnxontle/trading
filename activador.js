@@ -114,7 +114,6 @@ async function ejecutarSQL(sql) {
                 const mclimaEner = obtenerMclima(promedioEner);
                 const mclimaComm = obtenerMclima(promedioComm);
                 climaActual = mclimaCripto +  mclimaComm + mclimaEner + mclimaSP ;
-                console.log('Clima actual:', climaActual, 'Pendiente17:', pendientes[17], 'Tendencia17:', tendencias[17]);
 
                 // Iterar sobre estrategias activas y procesar apertura y cierre
                 for (let i = 0; i < soluciones.length; i++) {
