@@ -90,9 +90,8 @@ async function ejecutarSQL(sql) {
                     const tendencia = ((valorPrimeraFila - valorTerceraFila) / valorTerceraFila) * 100;
                     pendientes.push(pendiente);
                     tendencias.push(tendencia);
-                    if (2 <= i && i <= 32) {
-                        sumaPendientesCripto += pendiente;
-                        totalColumnasCripto++;
+                    if (i === 9) {
+                        sumaPendientesCripto = pendiente;
                     } else if (i === 74) {
                         PendienteSP500 = pendiente;
                     } else if (62 <= i && i <= 66) {
@@ -105,7 +104,7 @@ async function ejecutarSQL(sql) {
                 }
 
                 // Calcular clima actual
-                const promedioCripto = sumaPendientesCripto / totalColumnasCripto;
+                const promedioCripto = sumaPendientesCripto;
                 const promedioSP = PendienteSP500;
                 const promedioEner = sumaPendientesEner / totalColumnasEner;
                 const promedioComm = sumaPendientesComm / totalColumnasComm;
