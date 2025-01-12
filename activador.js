@@ -154,8 +154,17 @@ async function ejecutarSQL(sql) {
                             rangoMinimo = soluciones[i].pendiente - soluciones[i].rango_pendiente;
                         }
                         // evaluar tendencia para abrir
-                        let inicio_tendencia = soluciones[i].inicio_tendencia;
-                        let fin_tendencia = inicio_tendencia + soluciones[i].fin_tendencia;
+                        let rango1_tendencia = soluciones[i].inicio_tendencia;
+                        let rango2_tendencia = rango1_tendencia + soluciones[i].rango_tendencia;
+                        let inicio_tendencia, fin_tendencia;
+
+                        if (rango1_tendencia < rango2_tendencia) {
+                            inicio_tendencia = rango1_tendencia;
+                            fin_tendencia = rango2_tendencia;
+                        } else {
+                            inicio_tendencia = rango2_tendencia;
+                            fin_tendencia = rango1_tendencia;
+                        }
 
                         if (climaActual === soluciones[i].clima &&
                             rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo
