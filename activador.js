@@ -156,15 +156,8 @@ async function ejecutarSQL(sql) {
                         // evaluar tendencia para abrir
                         let rango1_tendencia = soluciones[i].inicio_tendencia;
                         let rango2_tendencia = rango1_tendencia + soluciones[i].rango_tendencia;
-                        let inicio_tendencia, fin_tendencia;
-
-                        if (rango1_tendencia < rango2_tendencia) {
-                            inicio_tendencia = rango1_tendencia;
-                            fin_tendencia = rango2_tendencia;
-                        } else {
-                            inicio_tendencia = rango2_tendencia;
-                            fin_tendencia = rango1_tendencia;
-                        }
+                        let inicio_tendencia = Math.min(rango1_tendencia, rango2_tendencia);
+                        let fin_tendencia = Math.max(rango1_tendencia, rango2_tendencia);
 
                         if (climaActual === soluciones[i].clima &&
                             rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo
