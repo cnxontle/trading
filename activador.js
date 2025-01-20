@@ -62,10 +62,10 @@ async function ejecutarSQL(sql) {
     if (soluciones) {
         try {
             const results = await pool.query(sql);
-            if (results && results.rows.length === 3) {  // Se esperan 3 filas
+            if (results && results.rows.length === 2) {  // Se esperan 2 filas
                 const primeraFila = results.rows[0];
                 const segundaFila = results.rows[1];
-                const terceraFila = results.rows[2];
+                //const terceraFila = results.rows[2];
                 const id = primeraFila.id;
                 const tiempo = primeraFila.tiempo;
                 const columnas = Object.keys(primeraFila);
@@ -85,9 +85,9 @@ async function ejecutarSQL(sql) {
                 for (let i = 2; i < columnas.length; i++) {
                     const valorPrimeraFila = primeraFila[columnas[i]];
                     const valorSegundaFila = segundaFila[columnas[i]];
-                    const valorTerceraFila = terceraFila[columnas[i]];
+                    //const valorTerceraFila = terceraFila[columnas[i]];
                     const pendiente = ((valorPrimeraFila - valorSegundaFila) / valorSegundaFila) * 100;
-                    const tendencia = ((valorPrimeraFila - valorTerceraFila) / valorTerceraFila) * 100;
+                    //const tendencia = ((valorPrimeraFila - valorTerceraFila) / valorTerceraFila) * 100;
                     pendientes.push(pendiente);
                     tendencias.push(tendencia);
                     if (i === 9) {
@@ -160,8 +160,7 @@ async function ejecutarSQL(sql) {
                         let fin_tendencia = Math.max(rango1_tendencia, rango2_tendencia);
 
                         if (climaActual === soluciones[i].clima &&
-                            rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo
-                            && tendencias[indice] >= inicio_tendencia && tendencias[indice] <= fin_tendencia) {
+                            rangoMinimo <= pendientes[indice] && pendientes[indice] <= rangoMaximo) {
                             
                             estrategiasActivas[i] = false;
                             const precioActivoNum = parseFloat(precioActivo);
@@ -176,6 +175,7 @@ async function ejecutarSQL(sql) {
                                 pool_take_profit[i] = precioActivoNum - (precioActivoNum * (takeProfitNum / 100));
                             }
                             
+                            //Aqui trabajar sobre lo de las ventanas
                             pool_caducidad[i] = soluciones[i].caducidad;
                             mensaje = {
                                 "id": soluciones[i].id,
