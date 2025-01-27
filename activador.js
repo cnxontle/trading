@@ -70,10 +70,10 @@ async function ejecutarSQL(sql) {
                 const tiempo = primeraFila.tiempo;
                 const columnas = Object.keys(primeraFila);
 
-                let sumaPendientesCripto = 0, totalColumnasCripto = 0;
+                let PendienteBTC = 0;
                 let PendienteSP500 = 0;
                 let sumaPendientesEner = 0, totalColumnasEner = 0;
-                let sumaPendientesComm = 0, totalColumnasComm = 0;
+                let PendienteETH = 0;
                 let climaActual;
                 let mensaje;
                 let pendientes = [];
@@ -91,28 +91,27 @@ async function ejecutarSQL(sql) {
                     pendientes.push(pendiente);
                     tendencias.push(tendencia);
                     if (i === 9) {
-                        sumaPendientesCripto = pendiente;
+                        PendienteBTC = pendiente;
                     } else if (i === 74) {
                         PendienteSP500 = pendiente;
                     } else if (62 <= i && i <= 66) {
                         sumaPendientesEner += pendiente;
                         totalColumnasEner++;
-                    } else if (57 <= i && i <= 61) {
-                        sumaPendientesComm += pendiente;
-                        totalColumnasComm++;
+                    } else if (i === 13) {
+                        PendienteETH = pendiente;
                     }
                 }
 
                 // Calcular clima actual
-                const promedioCripto = sumaPendientesCripto;
+                const promedioBTC = PendienteBTC;
                 const promedioSP = PendienteSP500;
                 const promedioEner = sumaPendientesEner / totalColumnasEner;
-                const promedioComm = sumaPendientesComm / totalColumnasComm;
-                const mclimaCripto = obtenerMclima(promedioCripto);
+                const promedioETH = PendienteETH;
+                const mclimaBTC = obtenerMclima(promedioBTC);
                 const mclimaSP = obtenerMclima(promedioSP);
                 const mclimaEner = obtenerMclima(promedioEner);
-                const mclimaComm = obtenerMclima(promedioComm);
-                climaActual = mclimaCripto +  mclimaComm + mclimaEner + mclimaSP ;
+                const mclimaETH = obtenerMclima(promedioETH);
+                climaActual = mclimaBTC +  mclimaETH + mclimaEner + mclimaSP ;
 
                 // Iterar sobre estrategias activas y procesar apertura y cierre
                 for (let i = 0; i < soluciones.length; i++) {
