@@ -9,7 +9,8 @@ const args = process.argv.slice(2);
 const mode = args.includes('r') ? 1 : 2;
 let mainWindow;
 const apalancamiento = parseFloat(process.env.APALANCAMIENTO);
-const soluciones = parseFloat(process.env.SOLUCIONES);
+const capital_inicial = parseFloat(process.env.CAPITAL_INICIAL);
+const constante_de_apalancamiento = capital_inicial * (apalancamiento - 1);
 
 //Crear una ventana de navegador Electron 
 function createWindow() {
@@ -104,7 +105,7 @@ if (mode !== 1) {
                         return parseFloat(rawValue.replace(/[^0-9.]/g, '')) || 0;
                     })();
                 `);
-                numericValue = Math.max(10, (numericValue * apalancamiento / soluciones));
+                numericValue = Math.max(10, (numericValue + constante_de_apalancamiento));
                 
                 await mainWindow.webContents.executeJavaScript(`document.querySelector('button[data-testid="watchlist_tab"]').click();`);
                 
