@@ -251,7 +251,7 @@ if (mode !== 1) {
                                 const days = parseInt(timeMatch[1], 10);
                                 const hours = parseInt(timeMatch[2], 10);
                                 const minutes = parseInt(timeMatch[3], 10);
-                                const totalSeconds = (days * 86400) + (hours * 3600) + (minutes * 60) + 60;
+                                const totalSeconds = (days * 86400) + (hours * 3600) + (minutes * 60) + 65;
                                 return totalSeconds;
                             }
                         }
