@@ -72,7 +72,7 @@ async function ejecutarSQL(sql) {
 
                 let PendienteBTC = 0;
                 let PendienteSP500 = 0;
-                let sumaPendientesEner = 0, totalColumnasEner = 0;
+                let PendienteEner = 0;
                 let PendienteETH = 0;
                 let climaActual;
                 let mensaje;
@@ -94,9 +94,8 @@ async function ejecutarSQL(sql) {
                         PendienteBTC = pendiente;
                     } else if (i === 74) {
                         PendienteSP500 = pendiente;
-                    } else if (62 <= i && i <= 66) {
-                        sumaPendientesEner += pendiente;
-                        totalColumnasEner++;
+                    } else if (i === 64) {
+                        PendienteEner = pendiente;
                     } else if (i === 13) {
                         PendienteETH = pendiente;
                     }
@@ -105,7 +104,7 @@ async function ejecutarSQL(sql) {
                 // Calcular clima actual
                 const promedioBTC = PendienteBTC;
                 const promedioSP = PendienteSP500;
-                const promedioEner = sumaPendientesEner / totalColumnasEner;
+                const promedioEner = PendienteEner;
                 const promedioETH = PendienteETH;
                 const mclimaBTC = obtenerMclima(promedioBTC);
                 const mclimaSP = obtenerMclima(promedioSP);
