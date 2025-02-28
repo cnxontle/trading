@@ -62,6 +62,7 @@ app.post('/guardar-valores', async (req, res) => {
             sumaActual += parsedValues[key.toLowerCase()];
         });
         console.log(`tiempo: ${tiempo}, Suma: ${sumaActual}`);
+        console.log(parsedValues);
 
         if (sumaActual === ultimaSuma) {
             contadorRepeticiones++;
